@@ -15,3 +15,9 @@ coverage/
 __pycache__/
 .worktrees/
 .claude/worktrees/
+
+# Claude Code — overrides pessoais, nunca versionar (scaffold ia-cookbook)
+.claude/settings.local.json
+CLAUDE.local.md
+.claude/data/*.json
+.claude/brainstorm/
