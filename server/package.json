@@ -11,7 +11,8 @@
     "typecheck": "tsc -p tsconfig.json",
     "openapi": "tsx src/scripts/generate-openapi.ts",
     "hash-password": "tsx src/scripts/hash-password.ts",
-    "reset-password": "tsx src/scripts/reset-password.ts"
+    "reset-password": "tsx src/scripts/reset-password.ts",
+    "reset-db": "tsx src/scripts/reset-db.ts"
   },
   "dependencies": {
     "@fastify/cookie": "^11.1.5",

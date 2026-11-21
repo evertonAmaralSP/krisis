@@ -29,7 +29,8 @@
     "ask": [
       "Bash(git push:*)",
       "Bash(gh pr merge:*)",
-      "Bash(npm run reset-password:*)"
+      "Bash(npm run reset-password:*)",
+      "Bash(npm run reset-db:*)"
     ]
   },
   "hooks": {
