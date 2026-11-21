@@ -281,13 +281,18 @@
   border-radius: 26px;
   background: var(--input);
 }
+/* O foco é mostrado no contorno arredondado do campo, não num retângulo interno. */
+.textForm:has(textarea:focus-visible) {
+  outline: 2px solid #b8307a;
+  outline-offset: 2px;
+}
 .textForm textarea {
   flex: 1;
   min-width: 0;
   max-height: 160px;
   padding: 10px 0;
   border: 0;
-  outline-offset: 4px;
+  outline: none;
   background: transparent;
   font-size: 15px;
   line-height: 1.5;
