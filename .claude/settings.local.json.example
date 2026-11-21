@@ -1,0 +1,14 @@
+{
+  "//": "Copie para .claude/settings.local.json e ADICIONE ao .gitignore. Overrides SEUS, nesta máquina.",
+  "//2": "Lembre: deny de qualquer escopo vence allow de qualquer escopo.",
+
+  "permissions": {
+    "allow": [
+      "Bash(<comando que só você usa nesta máquina>:*)"
+    ]
+  },
+
+  "env": {
+    "//": "Variáveis locais — nunca segredo real em arquivo versionado."
+  }
+}

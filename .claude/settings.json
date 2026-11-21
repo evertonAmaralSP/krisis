@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "permissions": {
+    "allow": [
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(git branch:*)",
+      "Bash(gh pr view:*)",
+      "Bash(gh pr list:*)",
+      "Bash(gh run list:*)",
+      "Bash(npm test:*)",
+      "Bash(npm run test:*)",
+      "Bash(npm run typecheck:*)",
+      "Bash(npm run openapi:*)",
+      "Bash(npm run build:*)"
+    ],
+    "deny": [
+      "Bash(rm -rf /:*)",
+      "Bash(sudo rm:*)",
+      "Bash(chmod 777:*)",
+      "Read(./.env)",
+      "Read(./.env.*)",
+      "Read(./**/*.pem)",
+      "Read(./**/*credentials*)",
+      "Read(./data/**)"
+    ],
+    "ask": [
+      "Bash(git push:*)",
+      "Bash(gh pr merge:*)",
+      "Bash(npm run reset-password:*)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR/.claude/hooks/guard-destrutivo.sh\"",
+            "timeout": 10,
+            "statusMessage": "Verificando comando destrutivo..."
+          }
+        ]
+      }
+    ]
+  },
+  "env": {},
+  "autoMode": {
+    "environment": [
+      "### Projeto KRISIS — ESTE diretório (/home/eamaral/workspace/krisis)",
+      "**Organization**: projeto pessoal, uso individual (um único usuário)",
+      "**Cloud provider(s)**: nenhum por enquanto; roda só na máquina local. Publicação futura (etapa 8) em Netlify + Supabase",
+      "**Source control**: github.com/evertonAmaralSP/krisis; trabalho em branch, merge na main por PR",
+      "**CI/CD deploy targets**: NENHUM. Não há deploy; o app roda com npm run dev",
+      "**Sensitive remote targets**: APIs de terceiros com chave (Groq; depois Google). Não há ambiente de produção",
+      "**Protected deployment namespaces / environments**: nenhum",
+      "**Secrets management**: .env local na raiz do repo (gitignored), lido só pelo backend; nunca vai ao frontend nem ao git",
+      "**Routine under this project**: npm install, npm test, npm run typecheck, npm run openapi, npm run build, subir o servidor local com LLM_ENGINE=fake e banco temporário, commits em branch de trabalho"
+    ]
+  },
+  "extraKnownMarketplaces": {
+    "datawake": {
+      "source": {
+        "source": "github",
+        "repo": "Datawake-tec/ia-cookbook"
+      }
+    }
+  },
+  "enabledPlugins": [
+    "dw-core@datawake"
+  ]
+}
