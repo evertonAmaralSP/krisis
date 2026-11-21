@@ -13,7 +13,8 @@
     "typecheck": "npm run typecheck -w contracts && npm run typecheck -w server && npm run typecheck -w web",
     "openapi": "npm run openapi -w server",
     "hash-password": "npm run hash-password -w server --",
-    "reset-password": "npm run reset-password -w server --"
+    "reset-password": "npm run reset-password -w server --",
+    "reset-db": "npm run reset-db -w server --"
   },
   "devDependencies": {
     "concurrently": "^10.0.7",

@@ -71,6 +71,21 @@ Para testar sem chave de API: `LLM_ENGINE=fake`.
 | `npm run openapi` | Regenera `openapi/v1.json` a partir do contrato |
 | `npm run hash-password` | Gera o hash da senha para o `.env` |
 | `npm run reset-password` | Redefine a senha direto no banco e encerra as sessões (recuperação de acesso) |
+| `npm run reset-db` | **Zera o banco** (apaga todas as entrevistas) e recria a conta a partir do `.env`. Pede para digitar `zerar`; `-- --sim` pula a confirmação. Recusa rodar com o servidor no ar |
+
+### Zerar o banco
+
+Use quando quiser começar do zero ou quando a conta foi criada com dados errados no `.env` (as variáveis `ADMIN_*` só valem no primeiro uso).
+
+```bash
+# 1. pare o npm run dev (Ctrl+C)
+# 2. corrija ADMIN_EMAIL / ADMIN_PASSWORD_HASH no .env, se for o caso
+npm run reset-db
+# 3. suba de novo
+npm run dev
+```
+
+O comando mostra o e-mail da conta recriada: confira se é o que você espera.
 
 ## Arquitetura em uma página
 
