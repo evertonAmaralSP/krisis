@@ -174,7 +174,7 @@ A marca é **KRISIS** (do próprio autor). A fonte da verdade é `docs/marca/KRI
 
 **v0**
 1. Estrutura do projeto, login e tela de chat funcionando com mensagens de texto e um modelo de linguagem real. (Entregue junto: formulário de nova entrevista, histórico na barra lateral e tema em Configurações.)
-2. Gravação no navegador e transcrição.
+2. Gravação no navegador e transcrição. (Entregue: Groq `whisper-large-v3-turbo` via endpoint compatível com a OpenAI, áudio WebM/Opus sem conversão, resposta `json` e duração medida no navegador, `language=pt` + contexto da vaga no `prompt`, limite de 5 min/10 MB, silêncio barrado no navegador pelo nível do som e alucinações conhecidas do Whisper barradas no servidor com 422. Medido: ~1,3 s do "Terminei de falar" ao texto do entrevistador numa resposta de 15 s.)
 3. Voz com Kokoro e reprodução no navegador.
 4. Formulário de nova entrevista, histórico e persistência; conta em Configurações (nome, e-mail, troca de senha).
 5. Feedback final.

@@ -28,8 +28,10 @@ export interface LlmEngine {
 
 export interface SttRequest {
   audio: Buffer;
+  /** Tipo do arquivo como o navegador gravou (ex.: audio/webm;codecs=opus). */
   mimeType: string;
-  language?: string;
+  /** Contexto curto para o modelo acertar termos (vaga, empresa). */
+  prompt?: string;
 }
 
 export interface SttResult {
@@ -37,7 +39,6 @@ export interface SttResult {
   model: string;
   engine: string;
   ms: number;
-  audioSeconds: number | null;
 }
 
 export interface SttEngine {

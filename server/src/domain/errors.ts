@@ -5,6 +5,9 @@ export type ErrorCode =
   | 'FORBIDDEN'
   | 'NOT_FOUND'
   | 'CONFLICT'
+  | 'PAYLOAD_TOO_LARGE'
+  | 'UNSUPPORTED_MEDIA'
+  | 'NO_SPEECH'
   | 'ENGINE_FAILURE'
   | 'INTERNAL';
 

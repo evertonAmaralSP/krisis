@@ -22,8 +22,9 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
     res = await fetch(`${BASE}${path}`, {
       method,
       credentials: 'same-origin',
-      headers: body !== undefined ? { 'content-type': 'application/json' } : undefined,
-      body: body !== undefined ? JSON.stringify(body) : undefined,
+      // FormData: o navegador define o content-type com o boundary do multipart.
+      headers: body !== undefined && !(body instanceof FormData) ? { 'content-type': 'application/json' } : undefined,
+      body: body === undefined ? undefined : body instanceof FormData ? body : JSON.stringify(body),
     });
   } catch {
     throw new ApiError(0, 'NETWORK', 'Não foi possível falar com o servidor. Ele está rodando?');
@@ -44,6 +45,11 @@ export const api = {
   listInterviews: () => request<v1.InterviewList>('GET', '/interviews'),
   createInterview: (body: v1.CreateInterviewBody) => request<v1.Interview>('POST', '/interviews', body),
   getInterview: (id: string) => request<v1.Interview>('GET', `/interviews/${encodeURIComponent(id)}`),
+  transcribe: async (id: string, audio: Blob, filename: string): Promise<v1.TranscriptionResponse> => {
+    const form = new FormData();
+    form.append('audio', audio, filename);
+    return request<v1.TranscriptionResponse>('POST', `/interviews/${encodeURIComponent(id)}/transcriptions`, form);
+  },
   sendMessage: (id: string, body: v1.SendMessageBody) =>
     request<v1.SendMessageResponse>('POST', `/interviews/${encodeURIComponent(id)}/messages`, body),
 };

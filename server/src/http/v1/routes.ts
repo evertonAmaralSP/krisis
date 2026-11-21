@@ -6,6 +6,7 @@ import { v1 } from '@krisis/contracts';
 import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
 import { z } from 'zod';
 import type { Services } from '../../container.ts';
+import { AppError } from '../../domain/errors.ts';
 import { currentUser, requireSession, SESSION_COOKIE } from './session.ts';
 import { toInterviewDto, toInterviewSummaryDto, toMessageDto, toUserDto } from './mappers.ts';
 
@@ -14,7 +15,7 @@ export interface V1Options {
   cookieSecure: boolean;
 }
 
-const errors = (...codes: (400 | 401 | 404 | 409 | 502)[]) =>
+const errors = (...codes: (400 | 401 | 404 | 409 | 413 | 415 | 422 | 502)[]) =>
   Object.fromEntries(codes.map((c) => [c, v1.ErrorBody]));
 
 export const v1Routes: FastifyPluginAsyncZod<V1Options> = async (app, { services, cookieSecure }) => {
@@ -142,6 +143,39 @@ export const v1Routes: FastifyPluginAsyncZod<V1Options> = async (app, { services
     );
 
     s.post(
+      '/interviews/:id/transcriptions',
+      {
+        schema: {
+          tags: ['interviews'],
+          summary: 'Transcrever a fala do candidato',
+          description:
+            'Recebe o áudio gravado (multipart/form-data, campo `audio`) e devolve o texto. Não grava nada: o cliente confirma o texto em POST /interviews/{id}/messages com `inputMode: "voice"`. Responde 422 quando não há fala reconhecível.',
+          security: [{ cookieAuth: [] }],
+          consumes: ['multipart/form-data'],
+          params: v1.IdParams,
+          response: { 200: v1.TranscriptionResponse, ...errors(400, 401, 404, 409, 413, 415, 422, 502) },
+        },
+      },
+      async (request) => {
+        if (!request.isMultipart()) {
+          throw new AppError('UNSUPPORTED_MEDIA', 'Envie o áudio como multipart/form-data no campo "audio".');
+        }
+        const file = await request.file();
+        if (!file || file.fieldname !== v1.TRANSCRIPTION_AUDIO_FIELD) {
+          throw new AppError('BAD_REQUEST', 'Envie o áudio no campo "audio".');
+        }
+        if (!isAudioType(file.mimetype)) {
+          throw new AppError('UNSUPPORTED_MEDIA', `Formato de áudio não suportado: ${file.mimetype}.`);
+        }
+        const audio = await file.toBuffer();
+        return services.transcription.transcribe(currentUser(request).id, request.params.id, {
+          audio,
+          mimeType: file.mimetype,
+        });
+      },
+    );
+
+    s.post(
       '/interviews/:id/messages',
       {
         schema: {
@@ -174,3 +208,9 @@ export const v1Routes: FastifyPluginAsyncZod<V1Options> = async (app, { services
     );
   });
 };
+
+/** Só os tipos do contrato: um tipo desconhecido recebe 415 claro, em vez de falhar no fornecedor. */
+function isAudioType(mimeType: string): boolean {
+  const base = mimeType.split(';')[0]!.trim().toLowerCase();
+  return (v1.TRANSCRIPTION_AUDIO_TYPES as readonly string[]).includes(base);
+}

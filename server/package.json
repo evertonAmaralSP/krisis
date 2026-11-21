@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@fastify/cookie": "^11.1.5",
+    "@fastify/multipart": "^10.1.9",
     "@fastify/swagger": "^9.9.5",
     "@fastify/swagger-ui": "^6.1.5",
     "@krisis/contracts": "*",

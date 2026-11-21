@@ -329,3 +329,46 @@
     height: 56px;
   }
 }
+
+/* Etapa 2: gravação e transcrição */
+.micRecording {
+  background: var(--coral);
+  box-shadow: 0 8px 28px rgba(196, 42, 82, 0.3);
+}
+.recordingRow {
+  flex: 1 1 280px;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  min-height: 52px;
+}
+.wave {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 44px;
+}
+.wave span {
+  width: 4px;
+  min-height: 6px;
+  border-radius: 4px;
+  background: var(--coral);
+  transition: height 80ms linear;
+}
+.transcribing {
+  color: var(--muted);
+  font-style: italic;
+  animation: pulse 1.2s infinite;
+}
+.retryRow {
+  align-self: stretch;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: var(--danger-bg);
+}
+.errorMsg {
+  flex: 1 1 240px;
+  font-size: 14px;
+}
