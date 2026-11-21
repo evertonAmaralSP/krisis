@@ -1,0 +1,230 @@
+/* Tokens da marca KRISIS. Tema escuro = book; tema claro = derivado e aprovado (docs/PLANO.md). */
+:root,
+:root[data-theme='claro'] {
+  color-scheme: light;
+  --bg: #faf7ff;
+  --panel: #ffffff;
+  --panel-2: #f3ecfd;
+  --input: #ffffff;
+  --text: #1b1029;
+  --text-soft: #2e2140;
+  --muted: #5e5170;
+  --line: rgba(91, 28, 162, 0.14);
+  --line-strong: rgba(91, 28, 162, 0.26);
+  --accent: #7a2bd6;
+  --coral: #c42a52;
+  --chip: #f1e7fe;
+  --mine: #f1e7fe;
+  --mine-line: rgba(122, 43, 214, 0.22);
+  --ok: #1d8a55;
+  --ok-text: #1d6b43;
+  --ok-bg: #e7f6ee;
+  --warn: #c2560e;
+  --warn-text: #8a3b07;
+  --warn-bg: #fdebd9;
+  --danger-bg: #fde8ee;
+  --disabled: #b9aec7;
+  --shadow: 0 18px 50px rgba(74, 32, 120, 0.08);
+  --shadow-soft: 0 6px 18px rgba(74, 32, 120, 0.06);
+  --header-bg: rgba(250, 247, 255, 0.92);
+}
+
+:root[data-theme='escuro'] {
+  color-scheme: dark;
+  --bg: #0d0718;
+  --panel: #171025;
+  --panel-2: #201331;
+  --input: #120b1e;
+  --text: #f7f2ff;
+  --text-soft: #e4daf0;
+  --muted: #b8abc9;
+  --line: rgba(208, 174, 255, 0.16);
+  --line-strong: rgba(208, 174, 255, 0.28);
+  --accent: #c69aff;
+  --coral: #ff5b7f;
+  --chip: #2a1a3f;
+  --mine: #241632;
+  --mine-line: rgba(198, 154, 255, 0.28);
+  --ok: #57d691;
+  --ok-text: #8be3b3;
+  --ok-bg: rgba(87, 214, 145, 0.14);
+  --warn: #ff8a3d;
+  --warn-text: #ffb37f;
+  --warn-bg: rgba(255, 138, 61, 0.16);
+  --danger-bg: rgba(255, 91, 127, 0.14);
+  --disabled: #4a3a5e;
+  --shadow: none;
+  --shadow-soft: none;
+  --header-bg: rgba(13, 7, 24, 0.86);
+}
+
+:root {
+  /* Botões com texto branco: trecho roxo → magenta (contraste). */
+  --cta: linear-gradient(115deg, #7a2bd6 0%, #b8307a 100%);
+  --cta-shadow: 0 8px 28px rgba(161, 60, 232, 0.23);
+  /* Gradiente completo da marca: só decorativo. */
+  --brand-grad: linear-gradient(115deg, #8b35e8 0%, #ed4c9a 54%, #ff8a3d 100%);
+  --font-title: 'Manrope', system-ui, sans-serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
+  --radius-card: 20px;
+  --radius-input: 12px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-title);
+  margin: 0;
+}
+
+a {
+  color: inherit;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid #b8307a;
+  outline-offset: 2px;
+}
+
+.visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* Componentes simples reutilizados em várias telas */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 0 24px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--cta);
+  color: #fff;
+  font-weight: 700;
+  font-size: 14px;
+  text-decoration: none;
+  box-shadow: var(--cta-shadow);
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+.btn-primary:disabled {
+  background: var(--disabled);
+  box-shadow: none;
+  cursor: default;
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 18px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: transparent;
+  font-weight: 700;
+  font-size: 13px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.field label,
+.field legend {
+  font-size: 13px;
+  font-weight: 600;
+}
+.field input,
+.field textarea {
+  min-height: 48px;
+  padding: 0 16px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-input);
+  background: var(--input);
+  font-size: 15px;
+}
+.field textarea {
+  padding: 14px 16px;
+  line-height: 1.6;
+  resize: vertical;
+}
+.field .hint {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--accent);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+.eyebrow::before {
+  content: '';
+  width: 25px;
+  height: 1px;
+  background: var(--coral);
+}
+
+.card {
+  padding: 28px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-card);
+  background: var(--panel);
+  box-shadow: var(--shadow);
+}
+
+.error-text {
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: var(--danger-bg);
+  color: var(--text);
+  font-size: 14px;
+}

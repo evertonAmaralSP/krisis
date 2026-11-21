@@ -1,0 +1,36 @@
+{
+  "name": "@krisis/server",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch --clear-screen=false src/main.ts",
+    "start": "tsx src/main.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc -p tsconfig.json",
+    "openapi": "tsx src/scripts/generate-openapi.ts",
+    "hash-password": "tsx src/scripts/hash-password.ts",
+    "reset-password": "tsx src/scripts/reset-password.ts"
+  },
+  "dependencies": {
+    "@fastify/cookie": "^11.1.5",
+    "@fastify/swagger": "^9.9.5",
+    "@fastify/swagger-ui": "^6.1.5",
+    "@krisis/contracts": "*",
+    "@node-rs/argon2": "^2.2.2",
+    "better-sqlite3": "^13.2.0",
+    "fastify": "^5.12.8",
+    "fastify-type-provider-zod": "^7.0.0",
+    "kysely": "^0.29.9",
+    "pino": "^10.4.0",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^9.6.0",
+    "@types/node": "^25.0.0",
+    "pino-pretty": "^13.2.0",
+    "tsx": "^4.23.15",
+    "vitest": "^5.1.1"
+  }
+}

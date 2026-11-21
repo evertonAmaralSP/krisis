@@ -1,0 +1,25 @@
+{
+  "name": "krisis",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "contracts",
+    "server",
+    "web"
+  ],
+  "scripts": {
+    "dev": "concurrently -k -n api,web -c magenta,cyan \"npm run dev -w server\" \"npm run dev -w web\"",
+    "test": "npm run test -w server",
+    "typecheck": "npm run typecheck -w contracts && npm run typecheck -w server && npm run typecheck -w web",
+    "openapi": "npm run openapi -w server",
+    "hash-password": "npm run hash-password -w server --",
+    "reset-password": "npm run reset-password -w server --"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.7",
+    "typescript": "^7.0.2"
+  },
+  "engines": {
+    "node": ">=22.12"
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "v": 3,
+  "createdOnFiles": {"v": 1, "at": "2026-11-20T22:10:00Z"},
+  "title": "KRISIS — Telas do portal de entrevistas",
+  "launch": {"view": "canvas"},
+  "pages": [],
+  "boards": {
+    "Main.dc.html": {"x": 0, "y": 0, "w": 1440, "h": 900, "title": "1. Login", "expand": "fill", "is_interactive": true},
+    "Chat.dc.html": {"x": 1520, "y": 0, "w": 1440, "h": 900, "title": "2. Chat da entrevista", "expand": "fill", "is_interactive": true},
+    "ChatMobile.dc.html": {"x": 3040, "y": 0, "w": 390, "h": 844, "title": "2b. Chat no celular", "is_interactive": true},
+    "Sidebar.dc.html": {"x": 3510, "y": 0, "w": 280, "h": 900, "title": "Componente: barra lateral", "is_interactive": true},
+    "NovaEntrevista.dc.html": {"x": 0, "y": 1020, "w": 1440, "h": 1100, "title": "3. Nova entrevista", "expand": "fill", "is_interactive": true},
+    "Feedback.dc.html": {"x": 1520, "y": 1020, "w": 1440, "h": 1560, "title": "4. Feedback", "expand": "fill", "is_interactive": true},
+    "Configuracoes.dc.html": {"x": 3040, "y": 1020, "w": 1440, "h": 1500, "title": "5. Configurações", "expand": "fill", "is_interactive": true}
+  },
+  "order": ["Main.dc.html", "Chat.dc.html", "ChatMobile.dc.html", "Sidebar.dc.html", "NovaEntrevista.dc.html", "Feedback.dc.html", "Configuracoes.dc.html"],
+  "notes": {
+    "titulo": {"x": 0, "y": -300, "text": "KRISIS — portal de treino de entrevistas", "kind": "title1", "maxW": 3790}
+  },
+  "designSystems": []
+}

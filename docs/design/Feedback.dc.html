@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>KRISIS — Feedback da entrevista</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap">
+<style>
+body{margin:0}
+a{color:inherit}a:hover{opacity:.92}
+button:focus-visible,a:focus-visible{outline:2px solid #B8307A;outline-offset:2px}
+</style>
+</helmet>
+<div style="min-height: 1560px; box-sizing: border-box; background: {{t.bg}}; color: {{t.text}}; font-family: 'DM Sans', sans-serif; display: flex; flex-wrap: wrap">
+
+  <dc-import name="Sidebar" tema="{{tema}}" ativo="e1" hint-size="280px,900px"></dc-import>
+
+  <main style="flex: 999 1 560px; min-width: 0; display: flex; flex-direction: column">
+    <header style="display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 10px; padding: 16px 28px; border-bottom: 1px solid {{t.line}}">
+      <a href="Chat.dc.html" style="display: inline-flex; align-items: center; height: 44px; padding: 0 18px; border-radius: 999px; border: 1px solid {{t.lineStrong}}; font-size: 13px; font-weight: 700; text-decoration: none">Ver transcrição</a>
+      <a href="NovaEntrevista.dc.html" style="display: inline-flex; align-items: center; height: 44px; padding: 0 20px; border-radius: 999px; background: linear-gradient(115deg, #7A2BD6 0%, #B8307A 100%); color: #FFFFFF; font-size: 13px; font-weight: 700; text-decoration: none; box-shadow: 0 8px 28px rgba(161,60,232,.23)">Treinar de novo</a>
+    </header>
+
+    <div style="padding: 44px 28px 72px">
+      <div style="max-width: 980px; margin: 0 auto; display: flex; flex-direction: column; gap: 28px">
+
+        <div>
+          <div style="display: flex; align-items: center; gap: 10px; color: {{t.accent}}; font-size: 11px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase"><span style="width: 25px; height: 1px; background: {{t.coral}}"></span>Feedback da entrevista</div>
+          <h1 style="margin: 14px 0 10px; font: 600 44px/1.08 'Manrope', sans-serif; letter-spacing: -.05em">Engenheiro de dados · Sênior</h1>
+          <p style="margin: 0; color: {{t.muted}}; font-size: 14px">Técnica · [Empresa] · 20 nov 2026 · 7 perguntas · 18 min</p>
+        </div>
+
+        <section style="padding: 28px; border-radius: 20px; border: 1px solid {{t.line}}; background: {{t.panel}}; box-shadow: {{t.shadow}}; position: relative; overflow: hidden">
+          <div style="position: absolute; left: 0; top: 0; right: 0; height: 4px; background: linear-gradient(115deg, #8B35E8 0%, #ED4C9A 54%, #FF8A3D 100%)" aria-hidden="true"></div>
+          <h2 style="margin: 0 0 10px; font: 600 19px 'Manrope', sans-serif">Resumo</h2>
+          <p style="margin: 0; font-size: 15px; line-height: 1.8; color: {{t.textSoft}}">Você mostrou domínio técnico e explicou bem as escolhas de arquitetura, sempre com o motivo da decisão. O ponto mais fraco foi quantificar resultados: em várias respostas faltaram números que mostrassem o impacto do seu trabalho.</p>
+        </section>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px">
+          <section style="padding: 26px; border-radius: 20px; border: 1px solid {{t.line}}; background: {{t.panel}}; box-shadow: {{t.shadow}}">
+            <h2 style="margin: 0 0 16px; display: flex; align-items: center; gap: 10px; font: 600 19px 'Manrope', sans-serif">
+              <span style="width: 34px; height: 34px; border-radius: 11px; display: grid; place-items: center; background: {{t.okFundo}}; color: {{t.okCor}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10"></path></svg></span>Pontos fortes
+            </h2>
+            <ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 12px; font-size: 14px; line-height: 1.7">
+              <li style="padding-left: 14px; border-left: 2px solid {{t.okBarra}}">Explicou o motivo de cada decisão técnica, não só o que foi feito.</li>
+              <li style="padding-left: 14px; border-left: 2px solid {{t.okBarra}}">Comparou alternativas antes de defender a escolhida.</li>
+              <li style="padding-left: 14px; border-left: 2px solid {{t.okBarra}}">Respostas objetivas, sem rodeios, no tempo certo.</li>
+            </ul>
+          </section>
+          <section style="padding: 26px; border-radius: 20px; border: 1px solid {{t.line}}; background: {{t.panel}}; box-shadow: {{t.shadow}}">
+            <h2 style="margin: 0 0 16px; display: flex; align-items: center; gap: 10px; font: 600 19px 'Manrope', sans-serif">
+              <span style="width: 34px; height: 34px; border-radius: 11px; display: grid; place-items: center; background: {{t.melFundo}}; color: {{t.melCor}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"></path></svg></span>Pontos a melhorar
+            </h2>
+            <ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 12px; font-size: 14px; line-height: 1.7">
+              <li style="padding-left: 14px; border-left: 2px solid {{t.melBarra}}">Trazer números: latência antes e depois, volume, custo, prazo.</li>
+              <li style="padding-left: 14px; border-left: 2px solid {{t.melBarra}}">Deixar claro o seu papel, separando o que você fez do que o time fez.</li>
+              <li style="padding-left: 14px; border-left: 2px solid {{t.melBarra}}">Fechar cada resposta com o resultado e o que aprendeu.</li>
+            </ul>
+          </section>
+        </div>
+
+        <section style="display: flex; flex-direction: column; gap: 14px">
+          <h2 style="margin: 8px 0 0; font: 600 24px 'Manrope', sans-serif; letter-spacing: -.03em">Como responder melhor</h2>
+          <p style="margin: 0; color: {{t.muted}}; font-size: 14px">As perguntas em que você teve mais espaço para melhorar, com uma sugestão de resposta.</p>
+          <sc-for list="{{sugestoes}}" as="s" hint-placeholder-count="2">
+            <article style="padding: 26px; border-radius: 20px; border: 1px solid {{t.line}}; background: {{t.panel}}; box-shadow: {{t.shadow}}; display: flex; flex-direction: column; gap: 16px">
+              <div style="display: flex; gap: 12px; align-items: baseline">
+                <span style="font: 700 12px 'Manrope', sans-serif; letter-spacing: .12em; color: {{t.coral}}">{{s.numero}}</span>
+                <h3 style="margin: 0; font: 600 17px/1.45 'Manrope', sans-serif">{{s.pergunta}}</h3>
+              </div>
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px">
+                <div style="padding: 16px; border-radius: 14px; background: {{t.panel2}}; display: flex; flex-direction: column; gap: 6px">
+                  <span style="font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: {{t.muted}}">Sua resposta</span>
+                  <p style="margin: 0; font-size: 14px; line-height: 1.7; color: {{t.textSoft}}">{{s.resposta}}</p>
+                </div>
+                <div style="padding: 16px; border-radius: 14px; background: {{t.sugFundo}}; border: 1px solid {{t.sugBorda}}; display: flex; flex-direction: column; gap: 6px">
+                  <span style="font-size: 11px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: {{t.accent}}">Sugestão</span>
+                  <p style="margin: 0; font-size: 14px; line-height: 1.7">{{s.sugestao}}</p>
+                </div>
+              </div>
+            </article>
+          </sc-for>
+        </section>
+
+        <section style="padding: 26px; border-radius: 20px; border: 1px solid {{t.line}}; background: {{t.panel}}; box-shadow: {{t.shadow}}; display: flex; flex-direction: column; gap: 14px">
+          <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 8px">
+            <h2 style="margin: 0; font: 600 19px 'Manrope', sans-serif">Tempos por etapa</h2>
+            <span style="font-size: 12px; color: {{t.muted}}">Motores: Groq · Kokoro</span>
+          </div>
+          <div style="overflow-x: auto">
+            <table style="width: 100%; min-width: 480px; border-collapse: collapse; font-size: 14px">
+              <thead>
+                <tr style="text-align: left; color: {{t.muted}}; font-size: 12px">
+                  <th scope="col" style="padding: 10px 12px; border-bottom: 1px solid {{t.line}}; font-weight: 600">Etapa</th>
+                  <th scope="col" style="padding: 10px 12px; border-bottom: 1px solid {{t.line}}; font-weight: 600; text-align: right">Média</th>
+                  <th scope="col" style="padding: 10px 12px; border-bottom: 1px solid {{t.line}}; font-weight: 600; text-align: right">Mais lenta</th>
+                </tr>
+              </thead>
+              <tbody>
+                <sc-for list="{{tempos}}" as="r" hint-placeholder-count="4">
+                  <tr>
+                    <th scope="row" style="padding: 12px; border-bottom: 1px solid {{t.line}}; text-align: left; font-weight: {{r.peso}}">{{r.etapa}}</th>
+                    <td style="padding: 12px; border-bottom: 1px solid {{t.line}}; text-align: right; font-variant-numeric: tabular-nums; font-weight: {{r.peso}}">{{r.media}}</td>
+                    <td style="padding: 12px; border-bottom: 1px solid {{t.line}}; text-align: right; font-variant-numeric: tabular-nums; color: {{t.muted}}">{{r.pior}}</td>
+                  </tr>
+                </sc-for>
+              </tbody>
+            </table>
+          </div>
+          <p style="margin: 0; font-size: 12px; color: {{t.muted}}">Valores ilustrativos. Na v1, esta tabela permite comparar a v0 com a v1.</p>
+        </section>
+      </div>
+    </div>
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"tema":{"editor":"enum","options":["claro","escuro"],"default":"claro"},"$preview":{"width":1440,"height":1560}}'>
+var TEMAS = {
+  claro: {bg:'#FAF7FF',panel:'#FFFFFF',panel2:'#F7F2FE',text:'#1B1029',textSoft:'#2E2140',muted:'#5E5170',line:'rgba(91,28,162,.14)',lineStrong:'rgba(91,28,162,.26)',accent:'#7A2BD6',coral:'#C42A52',shadow:'0 18px 50px rgba(74,32,120,.07)',okFundo:'#E7F6EE',okCor:'#1D6B43',okBarra:'#3FB27A',melFundo:'#FDEBD9',melCor:'#8A3B07',melBarra:'#F08A45',sugFundo:'#F6EFFF',sugBorda:'rgba(122,43,214,.25)'},
+  escuro: {bg:'#0D0718',panel:'#171025',panel2:'#201331',text:'#F7F2FF',textSoft:'#E4DAF0',muted:'#B8ABC9',line:'rgba(208,174,255,.16)',lineStrong:'rgba(208,174,255,.28)',accent:'#C69AFF',coral:'#FF5B7F',shadow:'none',okFundo:'rgba(87,214,145,.14)',okCor:'#8BE3B3',okBarra:'#57D691',melFundo:'rgba(255,138,61,.16)',melCor:'#FFB37F',melBarra:'#FF8A3D',sugFundo:'rgba(139,53,232,.14)',sugBorda:'rgba(198,154,255,.30)'}
+};
+var SUGESTOES = [
+  {numero:'01', pergunta:'Como você mediu se a nova arquitetura entregou o ganho esperado?', resposta:'Medimos a latência antes e depois e acompanhamos os reprocessamentos por um mês.', sugestao:'Dê os números e o critério de sucesso: “O objetivo era dados em até 5 minutos. Saímos de 24 horas para 3 minutos no p95 e zeramos os reprocessamentos manuais no primeiro mês.”'},
+  {numero:'02', pergunta:'Conte uma situação em que você discordou de uma decisão técnica do time.', resposta:'Eu discordei da escolha da ferramenta, mas no fim seguimos com ela.', sugestao:'Use situação, ação e resultado: explique o argumento que você levou, como buscou consenso (um teste comparativo, por exemplo) e o que aconteceu depois, mesmo que a decisão não tenha sido a sua.'}
+];
+var TEMPOS = [
+  {etapa:'Transcrição', media:'0,4 s', pior:'0,6 s', peso:'400'},
+  {etapa:'Modelo de linguagem', media:'0,7 s', pior:'1,1 s', peso:'400'},
+  {etapa:'Voz', media:'0,9 s', pior:'1,4 s', peso:'400'},
+  {etapa:'Até o texto aparecer', media:'1,1 s', pior:'1,7 s', peso:'700'}
+];
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { tema: null }; }
+  renderVals() {
+    var self = this;
+    var tema = this.state.tema || this.props.tema || 'claro';
+    return {
+      tema: tema,
+      t: TEMAS[tema],
+      isDark: tema === 'escuro',
+      isLight: tema !== 'escuro',
+      toggleLabel: tema === 'escuro' ? 'Mudar para o tema claro' : 'Mudar para o tema escuro',
+      toggle: function () { self.setState({ tema: tema === 'escuro' ? 'claro' : 'escuro' }); },
+      sugestoes: SUGESTOES,
+      tempos: TEMPOS
+    };
+  }
+}
+</script>
+</body>
+</html>

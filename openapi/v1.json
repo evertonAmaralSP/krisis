@@ -1,0 +1,1308 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "KRISIS API",
+    "version": "1.0.0",
+    "description": "API do portal de treino de entrevistas. Versão no caminho: /api/v1."
+  },
+  "components": {
+    "securitySchemes": {
+      "cookieAuth": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "krisis_sid"
+      }
+    },
+    "schemas": {
+      "ErrorBodyInput": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "example": "NOT_FOUND"
+              },
+              "message": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "code",
+              "message"
+            ]
+          }
+        },
+        "required": [
+          "error"
+        ]
+      },
+      "UserInput": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "pattern": "^(?:[A-Za-z0-9_'+\\-]+\\.)*[A-Za-z0-9_'+\\-]*[A-Za-z0-9_+-]@(?:[A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "email"
+        ]
+      },
+      "LoginBodyInput": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "pattern": "^(?:[A-Za-z0-9_'+\\-]+\\.)*[A-Za-z0-9_'+\\-]*[A-Za-z0-9_+-]@(?:[A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "MeResponseInput": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "$ref": "#/components/schemas/UserInput"
+          }
+        },
+        "required": [
+          "user"
+        ]
+      },
+      "LevelInput": {
+        "type": "string",
+        "enum": [
+          "junior",
+          "pleno",
+          "senior"
+        ]
+      },
+      "InterviewKindInput": {
+        "type": "string",
+        "enum": [
+          "comportamental",
+          "tecnica",
+          "mista"
+        ]
+      },
+      "InterviewStatusInput": {
+        "type": "string",
+        "enum": [
+          "active",
+          "finished"
+        ]
+      },
+      "MessageAuthorInput": {
+        "type": "string",
+        "enum": [
+          "interviewer",
+          "candidate"
+        ]
+      },
+      "InputModeInput": {
+        "type": "string",
+        "enum": [
+          "text",
+          "voice"
+        ]
+      },
+      "TimingsInput": {
+        "type": "object",
+        "properties": {
+          "sttMs": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "llmMs": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "ttsMs": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "sttMs",
+          "llmMs",
+          "ttsMs"
+        ]
+      },
+      "MessageInput": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "interviewId": {
+            "type": "string"
+          },
+          "author": {
+            "$ref": "#/components/schemas/MessageAuthorInput"
+          },
+          "content": {
+            "type": "string"
+          },
+          "inputMode": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/InputModeInput"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "audioSeconds": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "timings": {
+            "$ref": "#/components/schemas/TimingsInput"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+          }
+        },
+        "required": [
+          "id",
+          "interviewId",
+          "author",
+          "content",
+          "inputMode",
+          "audioSeconds",
+          "timings",
+          "createdAt"
+        ]
+      },
+      "EnginesInput": {
+        "type": "object",
+        "properties": {
+          "stt": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "llm": {
+            "type": "string"
+          },
+          "tts": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "stt",
+          "llm",
+          "tts"
+        ]
+      },
+      "InterviewSummaryInput": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "company": {
+            "type": "string"
+          },
+          "level": {
+            "$ref": "#/components/schemas/LevelInput"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/InterviewKindInput"
+          },
+          "status": {
+            "$ref": "#/components/schemas/InterviewStatusInput"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+          },
+          "finishedAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "role",
+          "company",
+          "level",
+          "kind",
+          "status",
+          "createdAt",
+          "finishedAt"
+        ]
+      },
+      "InterviewInput": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "company": {
+            "type": "string"
+          },
+          "level": {
+            "$ref": "#/components/schemas/LevelInput"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/InterviewKindInput"
+          },
+          "status": {
+            "$ref": "#/components/schemas/InterviewStatusInput"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+          },
+          "finishedAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "jobDescription": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "resume": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "engines": {
+            "$ref": "#/components/schemas/EnginesInput"
+          },
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MessageInput"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "role",
+          "company",
+          "level",
+          "kind",
+          "status",
+          "createdAt",
+          "finishedAt",
+          "jobDescription",
+          "resume",
+          "engines",
+          "messages"
+        ]
+      },
+      "CreateInterviewBodyInput": {
+        "type": "object",
+        "properties": {
+          "role": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 120
+          },
+          "company": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "level": {
+            "$ref": "#/components/schemas/LevelInput"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/InterviewKindInput"
+          },
+          "jobDescription": {
+            "type": "string",
+            "maxLength": 20000
+          },
+          "resume": {
+            "type": "string",
+            "maxLength": 20000
+          }
+        },
+        "required": [
+          "role",
+          "company",
+          "level",
+          "kind"
+        ]
+      },
+      "InterviewListInput": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InterviewSummaryInput"
+            }
+          }
+        },
+        "required": [
+          "items"
+        ]
+      },
+      "SendMessageBodyInput": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 10000
+          },
+          "inputMode": {
+            "default": "text",
+            "$ref": "#/components/schemas/InputModeInput"
+          },
+          "audioSeconds": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "sttMs": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "content"
+        ]
+      },
+      "SendMessageResponseInput": {
+        "type": "object",
+        "properties": {
+          "candidateMessage": {
+            "$ref": "#/components/schemas/MessageInput"
+          },
+          "interviewerMessage": {
+            "$ref": "#/components/schemas/MessageInput"
+          }
+        },
+        "required": [
+          "candidateMessage",
+          "interviewerMessage"
+        ]
+      },
+      "ErrorBody": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string",
+                "example": "NOT_FOUND"
+              },
+              "message": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "code",
+              "message"
+            ],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "error"
+        ],
+        "additionalProperties": false
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "pattern": "^(?:[A-Za-z0-9_'+\\-]+\\.)*[A-Za-z0-9_'+\\-]*[A-Za-z0-9_+-]@(?:[A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "email"
+        ],
+        "additionalProperties": false
+      },
+      "LoginBody": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "pattern": "^(?:[A-Za-z0-9_'+\\-]+\\.)*[A-Za-z0-9_'+\\-]*[A-Za-z0-9_+-]@(?:[A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ],
+        "additionalProperties": false
+      },
+      "MeResponse": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "$ref": "#/components/schemas/User"
+          }
+        },
+        "required": [
+          "user"
+        ],
+        "additionalProperties": false
+      },
+      "Level": {
+        "type": "string",
+        "enum": [
+          "junior",
+          "pleno",
+          "senior"
+        ]
+      },
+      "InterviewKind": {
+        "type": "string",
+        "enum": [
+          "comportamental",
+          "tecnica",
+          "mista"
+        ]
+      },
+      "InterviewStatus": {
+        "type": "string",
+        "enum": [
+          "active",
+          "finished"
+        ]
+      },
+      "MessageAuthor": {
+        "type": "string",
+        "enum": [
+          "interviewer",
+          "candidate"
+        ]
+      },
+      "InputMode": {
+        "type": "string",
+        "enum": [
+          "text",
+          "voice"
+        ]
+      },
+      "Timings": {
+        "type": "object",
+        "properties": {
+          "sttMs": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "llmMs": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "ttsMs": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "sttMs",
+          "llmMs",
+          "ttsMs"
+        ],
+        "additionalProperties": false
+      },
+      "Message": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "interviewId": {
+            "type": "string"
+          },
+          "author": {
+            "$ref": "#/components/schemas/MessageAuthor"
+          },
+          "content": {
+            "type": "string"
+          },
+          "inputMode": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/InputMode"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "audioSeconds": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "timings": {
+            "$ref": "#/components/schemas/Timings"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+          }
+        },
+        "required": [
+          "id",
+          "interviewId",
+          "author",
+          "content",
+          "inputMode",
+          "audioSeconds",
+          "timings",
+          "createdAt"
+        ],
+        "additionalProperties": false
+      },
+      "Engines": {
+        "type": "object",
+        "properties": {
+          "stt": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "llm": {
+            "type": "string"
+          },
+          "tts": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "stt",
+          "llm",
+          "tts"
+        ],
+        "additionalProperties": false
+      },
+      "InterviewSummary": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "company": {
+            "type": "string"
+          },
+          "level": {
+            "$ref": "#/components/schemas/Level"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/InterviewKind"
+          },
+          "status": {
+            "$ref": "#/components/schemas/InterviewStatus"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+          },
+          "finishedAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "role",
+          "company",
+          "level",
+          "kind",
+          "status",
+          "createdAt",
+          "finishedAt"
+        ],
+        "additionalProperties": false
+      },
+      "Interview": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string"
+          },
+          "company": {
+            "type": "string"
+          },
+          "level": {
+            "$ref": "#/components/schemas/Level"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/InterviewKind"
+          },
+          "status": {
+            "$ref": "#/components/schemas/InterviewStatus"
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+          },
+          "finishedAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "jobDescription": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "resume": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "engines": {
+            "$ref": "#/components/schemas/Engines"
+          },
+          "messages": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Message"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "role",
+          "company",
+          "level",
+          "kind",
+          "status",
+          "createdAt",
+          "finishedAt",
+          "jobDescription",
+          "resume",
+          "engines",
+          "messages"
+        ],
+        "additionalProperties": false
+      },
+      "CreateInterviewBody": {
+        "type": "object",
+        "properties": {
+          "role": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 120
+          },
+          "company": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 120
+          },
+          "level": {
+            "$ref": "#/components/schemas/Level"
+          },
+          "kind": {
+            "$ref": "#/components/schemas/InterviewKind"
+          },
+          "jobDescription": {
+            "type": "string",
+            "maxLength": 20000
+          },
+          "resume": {
+            "type": "string",
+            "maxLength": 20000
+          }
+        },
+        "required": [
+          "role",
+          "company",
+          "level",
+          "kind"
+        ],
+        "additionalProperties": false
+      },
+      "InterviewList": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InterviewSummary"
+            }
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "additionalProperties": false
+      },
+      "SendMessageBody": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 10000
+          },
+          "inputMode": {
+            "default": "text",
+            "$ref": "#/components/schemas/InputMode"
+          },
+          "audioSeconds": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          },
+          "sttMs": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "content",
+          "inputMode"
+        ],
+        "additionalProperties": false
+      },
+      "SendMessageResponse": {
+        "type": "object",
+        "properties": {
+          "candidateMessage": {
+            "$ref": "#/components/schemas/Message"
+          },
+          "interviewerMessage": {
+            "$ref": "#/components/schemas/Message"
+          }
+        },
+        "required": [
+          "candidateMessage",
+          "interviewerMessage"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "paths": {
+    "/api/v1/auth/login": {
+      "post": {
+        "summary": "Entrar",
+        "tags": [
+          "auth"
+        ],
+        "description": "Confere e-mail e senha e grava o cookie de sessão (httpOnly).",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginBodyInput"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/logout": {
+      "post": {
+        "summary": "Sair",
+        "tags": [
+          "auth"
+        ],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Default Response"
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/auth/me": {
+      "get": {
+        "summary": "Usuário da sessão",
+        "tags": [
+          "auth"
+        ],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/interviews": {
+      "get": {
+        "summary": "Listar entrevistas (mais recentes primeiro)",
+        "tags": [
+          "interviews"
+        ],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InterviewList"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Criar entrevista",
+        "tags": [
+          "interviews"
+        ],
+        "description": "Cria a entrevista e devolve a primeira pergunta do entrevistador em `messages`.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateInterviewBodyInput"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Interview"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/interviews/{id}": {
+      "get": {
+        "summary": "Entrevista com todas as mensagens",
+        "tags": [
+          "interviews"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Interview"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/interviews/{id}/messages": {
+      "post": {
+        "summary": "Enviar a fala do candidato e receber a resposta do entrevistador",
+        "tags": [
+          "interviews"
+        ],
+        "description": "Usado pelo turno por texto e pelo turno por voz (depois de POST /transcriptions). Se o modelo falhar, nada é gravado e a mesma fala pode ser reenviada.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendMessageBodyInput"
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SendMessageResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "auth",
+      "description": "Sessão"
+    },
+    {
+      "name": "interviews",
+      "description": "Entrevistas e turnos"
+    }
+  ]
+}

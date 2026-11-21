@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>KRISIS — Entrevista no celular</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap">
+<style>
+body{margin:0}
+input:focus-visible,button:focus-visible,a:focus-visible{outline:2px solid #B8307A;outline-offset:2px}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; background: {{t.bg}}; color: {{t.text}}; font-family: 'DM Sans', sans-serif; display: flex; flex-direction: column; overflow: hidden">
+
+  <header style="display: flex; align-items: center; gap: 8px; padding: 12px 12px; border-bottom: 1px solid {{t.line}}">
+    <button type="button" aria-label="Abrir histórico de entrevistas" style="width: 44px; height: 44px; display: grid; place-items: center; border-radius: 12px; border: 1px solid {{t.line}}; background: transparent; color: {{t.text}}">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"></path></svg>
+    </button>
+    <div style="flex: 1; min-width: 0; display: flex; flex-direction: column">
+      <span style="font: 600 16px 'Manrope', sans-serif; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">Engenheiro de dados</span>
+      <span style="font-size: 12px; color: {{t.muted}}">Sênior · Técnica</span>
+    </div>
+  </header>
+
+  <section aria-label="Conversa" style="flex: 1; overflow-y: auto; padding: 20px 16px; display: flex; flex-direction: column; gap: 16px">
+    <div style="display: flex; flex-direction: column; gap: 6px; max-width: 300px">
+      <span style="font-size: 12px; font-weight: 700; color: {{t.muted}}">Entrevistador</span>
+      <div style="padding: 12px 14px; border-radius: 4px 16px 16px 16px; background: {{t.panel}}; border: 1px solid {{t.line}}; font-size: 14px; line-height: 1.6">Interessante. Qual foi a maior dificuldade técnica nessa migração e como você chegou à arquitetura final?</div>
+    </div>
+    <div style="align-self: flex-end; display: flex; flex-direction: column; align-items: flex-end; gap: 6px; max-width: 290px">
+      <span style="font-size: 12px; font-weight: 700; color: {{t.muted}}">Você</span>
+      <div style="padding: 12px 14px; border-radius: 16px 4px 16px 16px; background: {{t.minha}}; border: 1px solid {{t.minhaBorda}}; font-size: 14px; line-height: 1.6">O mais difícil foi garantir que nenhum evento fosse processado duas vezes. Escolhemos chaves idempotentes no destino.</div>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 6px; max-width: 300px">
+      <span style="font-size: 12px; font-weight: 700; color: {{t.muted}}">Entrevistador</span>
+      <div style="padding: 12px 14px; border-radius: 4px 16px 16px 16px; background: {{t.panel}}; border: 1px solid {{t.line}}; font-size: 14px; line-height: 1.6">E como você mediu se a nova arquitetura entregou o ganho esperado?</div>
+      <span style="align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 999px; background: {{t.falandoFundo}}; color: {{t.falandoCor}}; font-size: 12px; font-weight: 700">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M4 10v4M8 6v12M12 3v18M16 7v10M20 10v4"></path></svg>Tocando áudio
+      </span>
+    </div>
+  </section>
+
+  <footer style="border-top: 1px solid {{t.line}}; padding: 12px 16px 20px; display: flex; flex-direction: column; gap: 12px">
+    <span role="status" style="align-self: center; display: inline-flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; color: {{t.muted}}"><span style="width: 8px; height: 8px; border-radius: 50%; background: {{t.laranja}}"></span>Entrevistador falando</span>
+    <button type="button" style="display: flex; align-items: center; justify-content: center; gap: 10px; height: 60px; border-radius: 999px; border: 0; background: linear-gradient(115deg, #7A2BD6 0%, #B8307A 100%); color: #FFFFFF; font: 700 16px 'DM Sans', sans-serif; box-shadow: 0 8px 28px rgba(161,60,232,.28)">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3z"></path><path d="M19 11a7 7 0 0 1-14 0M12 18v3"></path></svg>Falar
+    </button>
+    <form style="display: flex; align-items: center; gap: 6px; height: 48px; padding: 0 4px 0 16px; border-radius: 999px; border: 1px solid {{t.lineStrong}}; background: {{t.input}}">
+      <label for="texto-m" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Responder por texto</label>
+      <input id="texto-m" type="text" placeholder="Ou digite sua resposta…" style="flex: 1; min-width: 0; height: 100%; border: 0; background: transparent; color: {{t.text}}; font: 400 15px 'DM Sans', sans-serif">
+      <button type="button" aria-label="Enviar resposta" style="width: 44px; height: 44px; display: grid; place-items: center; border-radius: 50%; border: 0; background: {{t.chip}}; color: {{t.accent}}">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"></path></svg>
+      </button>
+    </form>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"tema":{"editor":"enum","options":["claro","escuro"],"default":"claro"},"$preview":{"width":390,"height":844}}'>
+var TEMAS = {
+  claro: {bg:'#FAF7FF',panel:'#FFFFFF',input:'#FFFFFF',text:'#1B1029',muted:'#5E5170',line:'rgba(91,28,162,.14)',lineStrong:'rgba(91,28,162,.26)',accent:'#7A2BD6',chip:'#F1E7FE',minha:'#F1E7FE',minhaBorda:'rgba(122,43,214,.22)',laranja:'#C2560E',falandoFundo:'#FDEBD9',falandoCor:'#8A3B07'},
+  escuro: {bg:'#0D0718',panel:'#171025',input:'#120B1E',text:'#F7F2FF',muted:'#B8ABC9',line:'rgba(208,174,255,.16)',lineStrong:'rgba(208,174,255,.28)',accent:'#C69AFF',chip:'#2A1A3F',minha:'#241632',minhaBorda:'rgba(198,154,255,.28)',laranja:'#FF8A3D',falandoFundo:'rgba(255,138,61,.16)',falandoCor:'#FFB37F'}
+};
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { tema: null }; }
+  renderVals() {
+    var self = this;
+    var tema = this.state.tema || this.props.tema || 'claro';
+    return {
+      t: TEMAS[tema],
+      isDark: tema === 'escuro',
+      isLight: tema !== 'escuro',
+      toggleLabel: tema === 'escuro' ? 'Mudar para o tema claro' : 'Mudar para o tema escuro',
+      toggle: function () { self.setState({ tema: tema === 'escuro' ? 'claro' : 'escuro' }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

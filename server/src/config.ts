@@ -1,0 +1,79 @@
+/**
+ * Configuração lida do ambiente e validada na partida.
+ * O .env fica na raiz do monorepo; variáveis já definidas no ambiente têm prioridade.
+ */
+import { existsSync } from 'node:fs';
+import { dirname, isAbsolute, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { z } from 'zod';
+
+export const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '../..');
+
+const emptyToUndefined = (v: unknown) => (v === '' ? undefined : v);
+const bool = z
+  .enum(['true', 'false'])
+  .default('false')
+  .transform((v) => v === 'true');
+
+const EnvSchema = z.object({
+  NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
+  HOST: z.string().default('127.0.0.1'),
+  PORT: z.coerce.number().int().positive().default(3001),
+  LOG_LEVEL: z.enum(['fatal', 'error', 'warn', 'info', 'debug', 'trace', 'silent']).default('info'),
+  COOKIE_SECURE: bool,
+  SESSION_TTL_DAYS: z.coerce.number().int().positive().default(30),
+
+  DB_DRIVER: z.string().default('sqlite'),
+  SQLITE_PATH: z.string().default('data/krisis.db'),
+
+  ADMIN_NAME: z.preprocess(emptyToUndefined, z.string().optional()),
+  ADMIN_EMAIL: z.preprocess(emptyToUndefined, z.email().optional()),
+  ADMIN_PASSWORD_HASH: z.preprocess(emptyToUndefined, z.string().startsWith('$argon2').optional()),
+
+  LLM_ENGINE: z.string().default('groq'),
+  LLM_MODEL: z.string().default('openai/gpt-oss-20b'),
+  LLM_REASONING_EFFORT: z.preprocess(emptyToUndefined, z.enum(['low', 'medium', 'high']).optional()),
+  LLM_MAX_TOKENS: z.coerce.number().int().positive().default(1024),
+  LLM_TIMEOUT_MS: z.coerce.number().int().positive().default(30_000),
+
+  GROQ_API_KEY: z.preprocess(emptyToUndefined, z.string().optional()),
+  GROQ_BASE_URL: z.url().default('https://api.groq.com/openai/v1'),
+});
+
+export type AppConfig = ReturnType<typeof loadConfig>;
+
+export function loadConfig(env: NodeJS.ProcessEnv = process.env) {
+  const parsed = EnvSchema.safeParse(env);
+  if (!parsed.success) {
+    const issues = parsed.error.issues.map((i) => `  - ${i.path.join('.')}: ${i.message}`).join('\n');
+    throw new Error(`Configuração inválida no .env:\n${issues}`);
+  }
+  const e = parsed.data;
+  const sqlitePath =
+    e.SQLITE_PATH === ':memory:' || isAbsolute(e.SQLITE_PATH)
+      ? e.SQLITE_PATH
+      : resolve(REPO_ROOT, e.SQLITE_PATH);
+
+  return {
+    env: e.NODE_ENV,
+    host: e.HOST,
+    port: e.PORT,
+    logLevel: e.LOG_LEVEL,
+    session: { ttlDays: e.SESSION_TTL_DAYS, cookieSecure: e.COOKIE_SECURE },
+    db: { driver: e.DB_DRIVER, sqlitePath },
+    admin: { name: e.ADMIN_NAME, email: e.ADMIN_EMAIL, passwordHash: e.ADMIN_PASSWORD_HASH },
+    llm: {
+      engine: e.LLM_ENGINE,
+      model: e.LLM_MODEL,
+      reasoningEffort: e.LLM_REASONING_EFFORT,
+      maxTokens: e.LLM_MAX_TOKENS,
+      timeoutMs: e.LLM_TIMEOUT_MS,
+    },
+    groq: { apiKey: e.GROQ_API_KEY, baseUrl: e.GROQ_BASE_URL },
+  };
+}
+
+/** Carrega o .env da raiz, se existir, sem sobrescrever o ambiente. */
+export function loadDotEnv(path = resolve(REPO_ROOT, '.env')) {
+  if (existsSync(path)) process.loadEnvFile(path);
+}

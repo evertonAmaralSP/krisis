@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>KRISIS — Entrar</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap">
+<style>
+body{margin:0}
+a{color:inherit}a:hover{opacity:.9}
+input:focus-visible,button:focus-visible,a:focus-visible{outline:2px solid #B8307A;outline-offset:2px}
+</style>
+</helmet>
+<div style="min-height: 900px; box-sizing: border-box; background: {{t.bg}}; color: {{t.text}}; font-family: 'DM Sans', sans-serif; display: flex; flex-wrap: wrap; position: relative; overflow: hidden">
+
+  <div style="flex: 1 1 560px; min-width: 0; box-sizing: border-box; padding: 40px 56px 56px; display: flex; flex-direction: column; justify-content: space-between; position: relative; isolation: isolate; border-right: 1px solid {{t.line}}">
+    <div style="display: flex; align-items: center; gap: 12px">
+      <img src="/_blob/cd37d9e4d9442174fee4aa7c59ceca29" alt="Logo KRISIS" style="width: 40px; height: 40px; object-fit: contain">
+      <span style="font: 800 21px 'Manrope', sans-serif; letter-spacing: .13em">KRISIS</span>
+    </div>
+
+    <div style="position: absolute; z-index: -1; right: -120px; top: 120px; width: 520px; height: 520px; display: grid; place-items: center" aria-hidden="true">
+      <div style="position: absolute; width: 340px; height: 340px; border-radius: 50%; background: {{t.orb}}; box-shadow: {{t.orbShadow}}; opacity: .9"></div>
+      <div style="position: absolute; width: 470px; height: 170px; border: 1px solid {{t.orbit1}}; border-radius: 50%; transform: rotate(-28deg)"></div>
+      <div style="position: absolute; width: 500px; height: 220px; border: 1px solid {{t.orbit2}}; border-radius: 50%; transform: rotate(42deg)"></div>
+      <div style="position: absolute; top: 120px; right: 80px; width: 9px; height: 9px; border-radius: 50%; background: #FF8A3D; box-shadow: 0 0 18px #FF8A3D"></div>
+      <div style="position: absolute; bottom: 110px; left: 70px; width: 9px; height: 9px; border-radius: 50%; background: #C69AFF; box-shadow: 0 0 18px #C69AFF"></div>
+    </div>
+
+    <div style="max-width: 520px; padding: 80px 0">
+      <div style="display: flex; align-items: center; gap: 10px; color: {{t.accent}}; font-size: 11px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase">
+        <span style="width: 25px; height: 1px; background: {{t.coral}}"></span>Treino de entrevistas
+      </div>
+      <h1 style="font: 600 64px/1.05 'Manrope', sans-serif; letter-spacing: -.055em; margin: 22px 0">Pratique a conversa.<br><span style="background: {{t.gradText}}; -webkit-background-clip: text; background-clip: text; color: transparent">Chegue pronto.</span></h1>
+      <p style="margin: 0; max-width: 440px; color: {{t.muted}}; font-size: 17px; line-height: 1.8">Um entrevistador de IA conversa com você por voz, aprofunda o que você responde e, no fim, mostra onde você foi bem e o que pode melhorar.</p>
+    </div>
+
+    <div style="color: {{t.muted}}; font-size: 12px">Acesso pessoal · sem cadastro</div>
+  </div>
+
+  <div style="flex: 1 1 440px; min-width: 0; box-sizing: border-box; padding: 40px 32px; display: flex; flex-direction: column">
+    <div style="flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px 0">
+      <form style="width: 100%; max-width: 400px; box-sizing: border-box; padding: 36px; border-radius: 20px; border: 1px solid {{t.line}}; background: {{t.panel}}; box-shadow: {{t.shadow}}; display: flex; flex-direction: column; gap: 20px">
+        <div>
+          <h2 style="margin: 0 0 6px; font: 600 28px/1.15 'Manrope', sans-serif; letter-spacing: -.04em">Entrar</h2>
+          <p style="margin: 0; color: {{t.muted}}; font-size: 14px">Use o e-mail e a senha definidos no servidor.</p>
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px">
+          <label for="email" style="font-size: 13px; font-weight: 600">E-mail</label>
+          <input id="email" type="email" placeholder="voce@exemplo.com" style="height: 48px; box-sizing: border-box; padding: 0 16px; border-radius: 12px; border: 1px solid {{t.lineStrong}}; background: {{t.input}}; color: {{t.text}}; font: 400 15px 'DM Sans', sans-serif">
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 8px">
+          <label for="senha" style="font-size: 13px; font-weight: 600">Senha</label>
+          <input id="senha" type="password" placeholder="••••••••" style="height: 48px; box-sizing: border-box; padding: 0 16px; border-radius: 12px; border: 1px solid {{t.lineStrong}}; background: {{t.input}}; color: {{t.text}}; font: 400 15px 'DM Sans', sans-serif">
+        </div>
+        <a href="Chat.dc.html" style="display: inline-flex; align-items: center; justify-content: center; gap: 10px; height: 48px; border-radius: 999px; background: linear-gradient(115deg, #7A2BD6 0%, #B8307A 100%); color: #FFFFFF; font: 700 14px 'DM Sans', sans-serif; text-decoration: none; box-shadow: 0 8px 28px rgba(161,60,232,.23)">Entrar <span aria-hidden="true">→</span></a>
+        <p style="margin: 0; color: {{t.muted}}; font-size: 12px; text-align: center">Sessão segura em cookie. Sem cadastro e sem recuperação de senha.</p>
+      </form>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"tema":{"editor":"enum","options":["claro","escuro"],"default":"claro"},"$preview":{"width":1440,"height":900}}'>
+var TEMAS = {
+  claro: {bg:'#FAF7FF',panel:'#FFFFFF',panel2:'#F3ECFD',input:'#FFFFFF',text:'#1B1029',muted:'#5E5170',line:'rgba(91,28,162,.14)',lineStrong:'rgba(91,28,162,.26)',accent:'#7A2BD6',coral:'#C42A52',shadow:'0 18px 50px rgba(74,32,120,.10)',gradText:'linear-gradient(115deg,#7A2BD6 0%,#C42A52 100%)',orb:'radial-gradient(circle at 35% 30%, #FFFFFF 0, #E6D4FD 30%, #CDB0F7 60%, #F1E7FE 80%)',orbShadow:'inset -24px -28px 60px rgba(122,43,214,.18), 0 0 90px rgba(139,53,232,.18)',orbit1:'rgba(122,43,214,.35)',orbit2:'rgba(196,42,82,.28)'},
+  escuro: {bg:'#0D0718',panel:'#171025',panel2:'#201331',input:'#120B1E',text:'#F7F2FF',muted:'#B8ABC9',line:'rgba(208,174,255,.16)',lineStrong:'rgba(208,174,255,.28)',accent:'#C69AFF',coral:'#FF5B7F',shadow:'0 25px 70px rgba(0,0,0,.45)',gradText:'linear-gradient(115deg,#8B35E8 0%,#ED4C9A 54%,#FF8A3D 100%)',orb:'radial-gradient(circle at 35% 30%, #D79AFF 0, #8B35E8 20%, #502078 44%, #1B102B 70%)',orbShadow:'inset -28px -32px 65px #07030E, 0 0 100px rgba(135,45,227,.27)',orbit1:'rgba(180,108,255,.47)',orbit2:'rgba(255,124,124,.33)'}
+};
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { tema: null }; }
+  renderVals() {
+    var tema = this.state.tema || this.props.tema || 'claro';
+    var self = this;
+    return {
+      t: TEMAS[tema],
+      isDark: tema === 'escuro',
+      isLight: tema !== 'escuro',
+      toggleLabel: tema === 'escuro' ? 'Mudar para o tema claro' : 'Mudar para o tema escuro',
+      toggle: function () { self.setState({ tema: tema === 'escuro' ? 'claro' : 'escuro' }); }
+    };
+  }
+}
+</script>
+</body>
+</html>

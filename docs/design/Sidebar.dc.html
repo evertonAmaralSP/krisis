@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>KRISIS — Barra lateral</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;family=Manrope:wght@400;500;600;700;800&amp;display=swap">
+<style>
+body{margin:0}
+a{color:inherit}a:hover{opacity:.92}
+button:focus-visible,a:focus-visible{outline:2px solid #B8307A;outline-offset:2px}
+</style>
+</helmet>
+<nav aria-label="Entrevistas" style="width: {{largura}}; min-height: 900px; height: 100%; box-sizing: border-box; padding: 20px 14px; display: flex; flex-direction: column; gap: 18px; background: {{t.panel}}; color: {{t.text}}; border-right: 1px solid {{t.line}}; font-family: 'DM Sans', sans-serif">
+
+  <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 0 4px">
+    <sc-if value="{{aberta}}" hint-placeholder-val="{{true}}">
+      <div style="display: flex; align-items: center; gap: 10px">
+        <img src="/_blob/cd37d9e4d9442174fee4aa7c59ceca29" alt="Logo KRISIS" style="width: 32px; height: 32px; object-fit: contain">
+        <span style="font: 800 17px 'Manrope', sans-serif; letter-spacing: .13em">KRISIS</span>
+      </div>
+    </sc-if>
+    <sc-if value="{{fechada}}" hint-placeholder-val="{{false}}">
+      <img src="/_blob/cd37d9e4d9442174fee4aa7c59ceca29" alt="Logo KRISIS" style="width: 32px; height: 32px; object-fit: contain">
+    </sc-if>
+  </div>
+
+  <button type="button" onClick="{{alternar}}" aria-label="{{rotuloAlternar}}" aria-expanded="{{aberta}}" style="align-self: {{alinhaBotao}}; width: 44px; height: 44px; display: grid; place-items: center; border-radius: 12px; border: 1px solid {{t.line}}; background: transparent; color: {{t.muted}}; cursor: pointer">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"></rect><path d="M9 4v16"></path></svg>
+  </button>
+
+  <a href="NovaEntrevista.dc.html" aria-label="Nova entrevista" style="display: flex; align-items: center; justify-content: center; gap: 10px; height: 48px; border-radius: 999px; background: linear-gradient(115deg, #7A2BD6 0%, #B8307A 100%); color: #FFFFFF; font: 700 14px 'DM Sans', sans-serif; text-decoration: none; box-shadow: 0 8px 28px rgba(161,60,232,.23)">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"></path></svg>
+    <sc-if value="{{aberta}}" hint-placeholder-val="{{true}}">Nova entrevista</sc-if>
+  </a>
+
+  <sc-if value="{{aberta}}" hint-placeholder-val="{{true}}">
+    <div style="display: flex; flex-direction: column; gap: 6px; flex: 1">
+      <div style="padding: 8px 8px 4px; color: {{t.accent}}; font-size: 11px; font-weight: 700; letter-spacing: .2em; text-transform: uppercase">Histórico</div>
+      <sc-for list="{{itens}}" as="item" hint-placeholder-count="4">
+        <a href="{{item.href}}" style="display: flex; flex-direction: column; gap: 4px; padding: 12px; border-radius: 14px; text-decoration: none; background: {{item.fundo}}; border: 1px solid {{item.borda}}">
+          <span style="display: flex; justify-content: space-between; gap: 8px; align-items: baseline">
+            <span style="font: 600 14px 'Manrope', sans-serif">{{item.vaga}}</span>
+            <span style="font-size: 11px; color: {{t.muted}}; white-space: nowrap">{{item.data}}</span>
+          </span>
+          <span style="font-size: 12px; color: {{t.muted}}">{{item.meta}}</span>
+          <span style="align-self: flex-start; margin-top: 4px; padding: 3px 9px; border-radius: 999px; font-size: 11px; font-weight: 600; background: {{item.chipFundo}}; color: {{item.chipCor}}">{{item.status}}</span>
+        </a>
+      </sc-for>
+    </div>
+  </sc-if>
+  <sc-if value="{{fechada}}" hint-placeholder-val="{{false}}"><div style="flex: 1"></div></sc-if>
+
+  <a href="Configuracoes.dc.html" aria-label="Configurações" style="display: flex; align-items: center; justify-content: {{alinhaItem}}; gap: 10px; height: 44px; padding: 0 12px; border-radius: 12px; text-decoration: none; font-size: 14px; font-weight: 600; background: {{config.fundo}}; border: 1px solid {{config.borda}}; color: {{config.cor}}">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"></path></svg>
+    <sc-if value="{{aberta}}" hint-placeholder-val="{{true}}">Configurações</sc-if>
+  </a>
+
+  <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 12px 6px 0; border-top: 1px solid {{t.line}}">
+    <sc-if value="{{aberta}}" hint-placeholder-val="{{true}}">
+      <span style="font-size: 13px; color: {{t.muted}}">Conta pessoal</span>
+    </sc-if>
+    <a href="Main.dc.html" aria-label="Sair" style="display: inline-flex; align-items: center; gap: 8px; height: 44px; padding: 0 12px; border-radius: 12px; color: {{t.muted}}; font-size: 13px; font-weight: 600; text-decoration: none">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 17l5-5-5-5M15 12H4"></path></svg>
+      <sc-if value="{{aberta}}" hint-placeholder-val="{{true}}">Sair</sc-if>
+    </a>
+  </div>
+</nav>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"tema":{"editor":"enum","options":["claro","escuro"],"default":"claro"},"ativo":{"editor":"enum","options":["e1","e2","config","nenhum"],"default":"e1"},"$preview":{"width":280,"height":900}}'>
+var TEMAS = {
+  claro: {bg:'#FAF7FF',panel:'#FFFFFF',panel2:'#F3ECFD',text:'#1B1029',muted:'#5E5170',line:'rgba(91,28,162,.14)',accent:'#7A2BD6',ativoFundo:'#F3ECFD',ativoBorda:'rgba(122,43,214,.35)',okFundo:'#E7F6EE',okCor:'#1D6B43',andFundo:'#FDEBD9',andCor:'#8A3B07'},
+  escuro: {bg:'#0D0718',panel:'#140C21',panel2:'#201331',text:'#F7F2FF',muted:'#B8ABC9',line:'rgba(208,174,255,.16)',accent:'#C69AFF',ativoFundo:'#201331',ativoBorda:'rgba(198,154,255,.38)',okFundo:'rgba(87,214,145,.14)',okCor:'#8BE3B3',andFundo:'rgba(255,138,61,.16)',andCor:'#FFB37F'}
+};
+var ENTREVISTAS = [
+  {id:'e1', vaga:'Engenheiro de dados', meta:'Sênior · Técnica', data:'Hoje', status:'Em andamento', href:'Chat.dc.html', andamento:true},
+  {id:'e2', vaga:'Tech lead', meta:'Sênior · Mista', data:'18 nov', status:'Feedback pronto', href:'Feedback.dc.html'},
+  {id:'e3', vaga:'Analista de dados', meta:'Pleno · Comportamental', data:'12 nov', status:'Feedback pronto', href:'Feedback.dc.html'},
+  {id:'e4', vaga:'Engenheiro de software', meta:'Pleno · Técnica', data:'05 nov', status:'Feedback pronto', href:'Feedback.dc.html'}
+];
+class Component extends DCLogic {
+  constructor(props) { super(props); this.state = { aberta: true }; }
+  renderVals() {
+    var t = TEMAS[this.props.tema || 'claro'];
+    var ativo = this.props.ativo || 'e1';
+    var aberta = this.state.aberta;
+    var self = this;
+    return {
+      t: t,
+      aberta: aberta,
+      fechada: !aberta,
+      largura: aberta ? '280px' : '76px',
+      alinhaBotao: aberta ? 'flex-end' : 'center',
+      alinhaItem: aberta ? 'flex-start' : 'center',
+      config: ativo === 'config'
+        ? { fundo: t.ativoFundo, borda: t.ativoBorda, cor: t.text }
+        : { fundo: 'transparent', borda: 'transparent', cor: t.muted },
+      rotuloAlternar: aberta ? 'Recolher barra lateral' : 'Expandir barra lateral',
+      alternar: function () { self.setState({ aberta: !aberta }); },
+      itens: ENTREVISTAS.map(function (e) {
+        var sel = e.id === ativo;
+        return Object.assign({}, e, {
+          fundo: sel ? t.ativoFundo : 'transparent',
+          borda: sel ? t.ativoBorda : 'transparent',
+          chipFundo: e.andamento ? t.andFundo : t.okFundo,
+          chipCor: e.andamento ? t.andCor : t.okCor
+        });
+      })
+    };
+  }
+}
+</script>
+</body>
+</html>

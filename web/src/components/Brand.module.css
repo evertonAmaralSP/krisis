@@ -1,0 +1,13 @@
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+.logo {
+  object-fit: contain;
+  flex: none;
+}
+.name {
+  font: 800 17px var(--font-title);
+  letter-spacing: 0.13em;
+}
