@@ -31,6 +31,7 @@ const STATUS: Record<ErrorCode, number> = {
   PAYLOAD_TOO_LARGE: 413,
   UNSUPPORTED_MEDIA: 415,
   NO_SPEECH: 422,
+  TTS_DISABLED: 404,
   ENGINE_FAILURE: 502,
   INTERNAL: 500,
 };
@@ -144,6 +145,24 @@ function withMultipartBodies<T>(doc: T): T {
           },
         },
       },
+    };
+  }
+  const speech = paths?.['/api/v1/messages/{id}/speech']?.get as { responses?: Record<string, unknown> } | undefined;
+  if (speech) {
+    speech.responses = {
+      200: {
+        description: 'Áudio da frase pedida.',
+        headers: {
+          [v1.SPEECH_PARTS_HEADER]: { description: 'Total de frases da fala.', schema: { type: 'integer' } },
+          [v1.SPEECH_MS_HEADER]: { description: 'Tempo de síntese desta frase, em ms.', schema: { type: 'integer' } },
+        },
+        content: {
+          'audio/wav': { schema: { type: 'string', format: 'binary' } },
+          'audio/mpeg': { schema: { type: 'string', format: 'binary' } },
+          'audio/ogg': { schema: { type: 'string', format: 'binary' } },
+        },
+      },
+      ...speech.responses,
     };
   }
   return doc;

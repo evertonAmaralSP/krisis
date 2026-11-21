@@ -37,7 +37,10 @@ export function NewInterviewPage() {
         ...(jobDescription.trim() && { jobDescription }),
         ...(resume.trim() && { resume }),
       },
-      { onSuccess: (interview) => navigate(`/entrevistas/${interview.id}`) },
+      {
+        onSuccess: (interview) =>
+          navigate(`/entrevistas/${interview.id}`, { state: { autoplay: interview.messages[0]?.id } }),
+      },
     );
   };
 

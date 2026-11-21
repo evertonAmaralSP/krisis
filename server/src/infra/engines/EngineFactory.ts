@@ -1,9 +1,11 @@
 import type { AppConfig } from '../../config.ts';
-import type { EngineLogger, LlmEngine, SttEngine } from '../../ports/engines.ts';
+import type { EngineLogger, LlmEngine, SttEngine, TtsEngine } from '../../ports/engines.ts';
 import { FakeLlmEngine } from './fake/FakeLlmEngine.ts';
 import { FakeSttEngine } from './fake/FakeSttEngine.ts';
+import { FakeTtsEngine } from './fake/FakeTtsEngine.ts';
 import { OpenAiCompatibleLlmEngine } from './openai-compatible/OpenAiCompatibleLlmEngine.ts';
 import { OpenAiCompatibleSttEngine } from './openai-compatible/OpenAiCompatibleSttEngine.ts';
+import { OpenAiCompatibleTtsEngine } from './openai-compatible/OpenAiCompatibleTtsEngine.ts';
 
 export interface EngineContext {
   config: AppConfig;
@@ -37,11 +39,12 @@ class Registry<T> {
 
 /**
  * Um motor novo = uma classe que estende a base do seu tipo + uma linha
- * de `register*`. A voz (TTS) entra aqui na etapa 3.
+ * de `register*`.
  */
 export class EngineFactory {
   private readonly llm = new Registry<LlmEngine>('LLM_ENGINE');
   private readonly stt = new Registry<SttEngine>('STT_ENGINE');
+  private readonly tts = new Registry<TtsEngine>('TTS_ENGINE');
 
   constructor(private readonly ctx: EngineContext) {}
 
@@ -53,6 +56,19 @@ export class EngineFactory {
   registerStt(name: string, builder: Builder<SttEngine>): this {
     this.stt.register(name, builder);
     return this;
+  }
+
+  registerTts(name: string, builder: Builder<TtsEngine>): this {
+    this.tts.register(name, builder);
+    return this;
+  }
+
+  ttsNames(): string[] {
+    return this.tts.names();
+  }
+
+  createTts(name = this.ctx.config.tts.engine): TtsEngine {
+    return this.tts.create(name, this.ctx);
   }
 
   llmNames(): string[] {
@@ -111,5 +127,22 @@ export function defaultEngineFactory(ctx: EngineContext): EngineFactory {
           logger,
         ),
     )
-    .registerStt('fake', ({ logger }) => new FakeSttEngine(logger));
+    .registerStt('fake', ({ logger }) => new FakeSttEngine(logger))
+    .registerTts(
+      'kokoro',
+      ({ config, logger }) =>
+        new OpenAiCompatibleTtsEngine(
+          {
+            name: 'kokoro',
+            baseUrl: config.kokoro.baseUrl,
+            model: config.tts.model,
+            voice: config.tts.voice,
+            speed: config.tts.speed,
+            format: 'wav',
+            timeoutMs: config.tts.timeoutMs,
+          },
+          logger,
+        ),
+    )
+    .registerTts('fake', ({ logger }) => new FakeTtsEngine(logger));
 }

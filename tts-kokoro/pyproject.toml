@@ -1,0 +1,24 @@
+[project]
+name = "krisis-tts-kokoro"
+version = "0.1.0"
+description = "Serviço local de voz (Kokoro-82M) do KRISIS, no formato /v1/audio/speech da OpenAI."
+requires-python = ">=3.10,<3.13"
+dependencies = [
+  "kokoro==0.9.4",
+  "soundfile>=0.12",
+  "fastapi>=0.115",
+  "uvicorn>=0.30",
+  "torch>=2.4",
+]
+
+[tool.uv]
+package = false
+
+# PyTorch só de CPU: evita baixar as rodas com CUDA (gigabytes a mais), sem GPU nesta máquina.
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "pytorch-cpu" }

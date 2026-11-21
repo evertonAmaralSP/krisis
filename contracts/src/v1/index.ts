@@ -166,6 +166,17 @@ export const TranscriptionResponse = z
   .meta({ id: 'TranscriptionResponse' });
 export type TranscriptionResponse = z.infer<typeof TranscriptionResponse>;
 
+/**
+ * GET /messages/{id}/speech?part=N — áudio de UMA frase da fala do entrevistador.
+ * O cabeçalho x-speech-parts diz quantas frases há; o cliente toca a parte N
+ * enquanto pede a N+1. x-tts-ms traz o tempo de síntese da parte.
+ */
+export const SPEECH_PARTS_HEADER = 'x-speech-parts';
+export const SPEECH_MS_HEADER = 'x-tts-ms';
+// Sem .meta({ id }): o @fastify/swagger não resolve $ref em query string.
+export const SpeechQuery = z.object({ part: z.coerce.number().int().nonnegative().default(0) });
+export type SpeechQuery = z.infer<typeof SpeechQuery>;
+
 export const SendMessageBody = z
   .object({
     content: z.string().trim().min(1).max(10_000),

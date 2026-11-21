@@ -2,13 +2,15 @@ import type { EngineNames, Interview, InterviewConfig, Message } from '../domain
 import { notFound } from '../domain/errors.ts';
 import type { Repositories } from '../ports/repositories.ts';
 import type { ConversationService } from './ConversationService.ts';
-import type { LlmResolver, SttResolver } from './LlmResolver.ts';
+import type { LlmResolver, SttResolver, TtsResolver } from './LlmResolver.ts';
+import { TTS_DISABLED } from './SpeechService.ts';
 
 export class InterviewService {
   constructor(
     private readonly repos: Repositories,
     private readonly llm: LlmResolver,
     private readonly stt: SttResolver,
+    private readonly tts: TtsResolver,
     private readonly conversation: ConversationService,
   ) {}
 
@@ -17,8 +19,12 @@ export class InterviewService {
    * Se o modelo falhar, nada fica gravado.
    */
   async create(userId: string, config: InterviewConfig): Promise<Interview & { messages: Message[] }> {
-    // A voz (TTS) entra na etapa 3.
-    const engines: EngineNames = { stt: this.stt.defaultName(), llm: this.llm.defaultName(), tts: null };
+    const tts = this.tts.defaultName();
+    const engines: EngineNames = {
+      stt: this.stt.defaultName(),
+      llm: this.llm.defaultName(),
+      tts: tts === TTS_DISABLED ? null : tts,
+    };
     const opening = await this.conversation.opening(config, engines.llm);
 
     const interview = await this.repos.interviews.create({ ...config, userId, engines });

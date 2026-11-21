@@ -1,5 +1,5 @@
 import { AppError } from '../domain/errors.ts';
-import type { LlmEngine, SttEngine } from '../ports/engines.ts';
+import type { LlmEngine, SttEngine, TtsEngine } from '../ports/engines.ts';
 
 /** Entrega o motor pelo nome gravado na entrevista. */
 export interface EngineResolver<T> {
@@ -9,6 +9,7 @@ export interface EngineResolver<T> {
 
 export type LlmResolver = EngineResolver<LlmEngine>;
 export type SttResolver = EngineResolver<SttEngine>;
+export type TtsResolver = EngineResolver<TtsEngine>;
 
 /** Cria cada motor uma vez por nome. Motores não guardam estado de conversa. */
 export class CachedEngineResolver<T> implements EngineResolver<T> {

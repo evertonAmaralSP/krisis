@@ -30,6 +30,9 @@ export type NewMessage = Omit<Message, 'id' | 'createdAt'>;
 
 export interface MessageRepository {
   listByInterview(interviewId: string): Promise<Message[]>;
+  /** A mensagem e a entrevista dela, só se a entrevista for do usuário. */
+  findForUser(messageId: string, userId: string): Promise<{ message: Message; interview: Interview } | null>;
+  setTtsMs(messageId: string, ms: number): Promise<void>;
   /** Grava várias mensagens de forma atômica, na ordem dada. */
   createMany(messages: NewMessage[]): Promise<Message[]>;
 }

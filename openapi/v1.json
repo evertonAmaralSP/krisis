@@ -1385,6 +1385,121 @@
         }
       }
     },
+    "/api/v1/messages/{id}/speech": {
+      "get": {
+        "summary": "Voz de uma frase da fala do entrevistador",
+        "tags": [
+          "interviews"
+        ],
+        "description": "Devolve o áudio da frase `part` (0, 1, 2…). O cabeçalho `x-speech-parts` diz quantas frases há; toque a parte N enquanto pede a N+1. `x-tts-ms` traz o tempo de síntese. Responde 404 com código TTS_DISABLED quando a voz está desligada.",
+        "parameters": [
+          {
+            "schema": {
+              "default": 0,
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "in": "query",
+            "name": "part",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Áudio da frase pedida.",
+            "headers": {
+              "x-speech-parts": {
+                "description": "Total de frases da fala.",
+                "schema": {
+                  "type": "integer"
+                }
+              },
+              "x-tts-ms": {
+                "description": "Tempo de síntese desta frase, em ms.",
+                "schema": {
+                  "type": "integer"
+                }
+              }
+            },
+            "content": {
+              "audio/wav": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "audio/mpeg": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              },
+              "audio/ogg": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/interviews/{id}/messages": {
       "post": {
         "summary": "Enviar a fala do candidato e receber a resposta do entrevistador",

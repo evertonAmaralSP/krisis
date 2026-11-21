@@ -63,3 +63,8 @@ export const IconStop = ({ size = 20 }: P) => (
     <rect x="6" y="6" width="12" height="12" rx="2" />
   </svg>
 );
+export const IconPlay = ({ size = 14 }: P) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path d="M8 5v14l11-7z" />
+  </svg>
+);

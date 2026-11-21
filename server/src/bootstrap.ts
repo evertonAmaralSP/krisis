@@ -25,13 +25,16 @@ export async function bootstrap(config: AppConfig, logger: Logger): Promise<{ da
   // Valida já na partida que os motores padrão existem e estão configurados.
   engines.createLlm();
   engines.createStt();
+  if (config.tts.engine !== 'none') engines.createTts();
   const llm = new CachedEngineResolver((name) => engines.createLlm(name), config.llm.engine);
   const stt = new CachedEngineResolver((name) => engines.createStt(name), config.stt.engine);
+  const tts = new CachedEngineResolver((name) => engines.createTts(name), config.tts.engine);
 
   const services = createServices({
     repos: dataSource.repositories,
     llm,
     stt,
+    tts,
     hasher: new Argon2PasswordHasher(),
     sessionTtlDays: config.session.ttlDays,
   });

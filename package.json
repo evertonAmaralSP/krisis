@@ -8,13 +8,16 @@
     "web"
   ],
   "scripts": {
-    "dev": "concurrently -k -n api,web -c magenta,cyan \"npm run dev -w server\" \"npm run dev -w web\"",
+    "dev": "concurrently -n api,web,voz -c magenta,cyan,yellow \"npm run dev -w server\" \"npm run dev -w web\" \"npm run tts\"",
     "test": "npm run test -w server",
     "typecheck": "npm run typecheck -w contracts && npm run typecheck -w server && npm run typecheck -w web",
     "openapi": "npm run openapi -w server",
     "hash-password": "npm run hash-password -w server --",
     "reset-password": "npm run reset-password -w server --",
-    "reset-db": "npm run reset-db -w server --"
+    "reset-db": "npm run reset-db -w server --",
+    "tts": "bash tts-kokoro/start.sh",
+    "tts:setup": "cd tts-kokoro && uv sync && uv run python download_model.py",
+    "tts:bench": "cd tts-kokoro && uv run python bench.py"
   },
   "devDependencies": {
     "concurrently": "^10.0.7",
