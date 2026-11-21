@@ -2,7 +2,7 @@
 import { pino, type Logger } from 'pino';
 import type { AppConfig } from './config.ts';
 import { createServices, type Services } from './container.ts';
-import { CachedLlmResolver } from './application/LlmResolver.ts';
+import { CachedEngineResolver } from './application/LlmResolver.ts';
 import { defaultDataSourceFactory } from './infra/datasource/DataSourceFactory.ts';
 import { defaultEngineFactory } from './infra/engines/EngineFactory.ts';
 import { Argon2PasswordHasher } from './infra/security/Argon2PasswordHasher.ts';
@@ -22,13 +22,16 @@ export async function bootstrap(config: AppConfig, logger: Logger): Promise<{ da
   await dataSource.init();
 
   const engines = defaultEngineFactory({ config, logger });
-  // Valida já na partida que o motor padrão existe e está configurado.
+  // Valida já na partida que os motores padrão existem e estão configurados.
   engines.createLlm();
-  const llm = new CachedLlmResolver((name) => engines.createLlm(name), config.llm.engine);
+  engines.createStt();
+  const llm = new CachedEngineResolver((name) => engines.createLlm(name), config.llm.engine);
+  const stt = new CachedEngineResolver((name) => engines.createStt(name), config.stt.engine);
 
   const services = createServices({
     repos: dataSource.repositories,
     llm,
+    stt,
     hasher: new Argon2PasswordHasher(),
     sessionTtlDays: config.session.ttlDays,
   });

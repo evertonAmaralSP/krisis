@@ -75,7 +75,7 @@ describe('Entrevista por texto', () => {
     const created = await c.app.inject({ method: 'POST', url: '/api/v1/interviews', headers, payload: novaEntrevista });
     expect(created.statusCode).toBe(201);
     const interview = created.json();
-    expect(interview.engines).toEqual({ stt: null, llm: 'fake', tts: null });
+    expect(interview.engines).toEqual({ stt: 'fake', llm: 'fake', tts: null });
     expect(interview.messages).toHaveLength(1);
     expect(interview.messages[0]).toMatchObject({ author: 'interviewer', content: 'Primeira pergunta?' });
     expect(interview.messages[0].timings.llmMs).toBeTypeOf('number');

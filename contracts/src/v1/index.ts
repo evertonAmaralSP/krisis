@@ -132,6 +132,40 @@ export type InterviewList = z.infer<typeof InterviewList>;
 
 // ---------- Turno ----------
 
+/**
+ * POST /interviews/{id}/transcriptions — multipart/form-data com o campo `audio`.
+ * Não grava nada: o texto volta para o cliente, que o envia em POST /messages.
+ */
+export const TRANSCRIPTION_AUDIO_FIELD = 'audio';
+export const TRANSCRIPTION_MAX_BYTES = 10 * 1024 * 1024;
+/** Tipos aceitos (sem parâmetros de codec). O MediaRecorder grava webm (Chrome, Firefox) ou mp4 (Safari). */
+export const TRANSCRIPTION_AUDIO_TYPES = [
+  'audio/webm',
+  'video/webm',
+  'audio/ogg',
+  'audio/mp4',
+  'video/mp4',
+  'audio/m4a',
+  'audio/x-m4a',
+  'audio/mpeg',
+  'audio/mp3',
+  'audio/wav',
+  'audio/x-wav',
+  'audio/wave',
+  'audio/flac',
+  'audio/x-flac',
+] as const;
+
+export const TranscriptionResponse = z
+  .object({
+    text: z.string(),
+    sttMs: z.number().int().nonnegative(),
+    engine: z.string(),
+    model: z.string(),
+  })
+  .meta({ id: 'TranscriptionResponse' });
+export type TranscriptionResponse = z.infer<typeof TranscriptionResponse>;
+
 export const SendMessageBody = z
   .object({
     content: z.string().trim().min(1).max(10_000),

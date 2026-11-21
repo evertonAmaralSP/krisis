@@ -1,17 +1,21 @@
-import type { LlmEngine } from '../ports/engines.ts';
+import { AppError } from '../domain/errors.ts';
+import type { LlmEngine, SttEngine } from '../ports/engines.ts';
 
-/** Entrega o motor de linguagem pelo nome gravado na entrevista. */
-export interface LlmResolver {
+/** Entrega o motor pelo nome gravado na entrevista. */
+export interface EngineResolver<T> {
   defaultName(): string;
-  get(name: string): LlmEngine;
+  get(name: string): T;
 }
 
+export type LlmResolver = EngineResolver<LlmEngine>;
+export type SttResolver = EngineResolver<SttEngine>;
+
 /** Cria cada motor uma vez por nome. Motores não guardam estado de conversa. */
-export class CachedLlmResolver implements LlmResolver {
-  private readonly cache = new Map<string, LlmEngine>();
+export class CachedEngineResolver<T> implements EngineResolver<T> {
+  private readonly cache = new Map<string, T>();
 
   constructor(
-    private readonly create: (name: string) => LlmEngine,
+    private readonly create: (name: string) => T,
     private readonly defaultEngine: string,
   ) {}
 
@@ -22,9 +26,19 @@ export class CachedLlmResolver implements LlmResolver {
   get(name: string) {
     let engine = this.cache.get(name);
     if (!engine) {
-      engine = this.create(name);
+      try {
+        engine = this.create(name);
+      } catch (err) {
+        // Motor gravado na entrevista que não existe mais ou está sem configuração.
+        throw new AppError('ENGINE_FAILURE', `O motor "${name}" desta entrevista não está disponível: ${(err as Error).message}`, {
+          cause: err,
+        });
+      }
       this.cache.set(name, engine);
     }
     return engine;
   }
 }
+
+/** Mantido por compatibilidade com o código da etapa 1. */
+export const CachedLlmResolver = CachedEngineResolver<LlmEngine>;

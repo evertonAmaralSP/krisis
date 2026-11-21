@@ -36,6 +36,11 @@ const EnvSchema = z.object({
   LLM_MAX_TOKENS: z.coerce.number().int().positive().default(1024),
   LLM_TIMEOUT_MS: z.coerce.number().int().positive().default(30_000),
 
+  STT_ENGINE: z.string().default('groq'),
+  STT_MODEL: z.string().default('whisper-large-v3-turbo'),
+  STT_LANGUAGE: z.string().default('pt'),
+  STT_TIMEOUT_MS: z.coerce.number().int().positive().default(30_000),
+
   GROQ_API_KEY: z.preprocess(emptyToUndefined, z.string().optional()),
   GROQ_BASE_URL: z.url().default('https://api.groq.com/openai/v1'),
 });
@@ -68,6 +73,12 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env) {
       reasoningEffort: e.LLM_REASONING_EFFORT,
       maxTokens: e.LLM_MAX_TOKENS,
       timeoutMs: e.LLM_TIMEOUT_MS,
+    },
+    stt: {
+      engine: e.STT_ENGINE,
+      model: e.STT_MODEL,
+      language: e.STT_LANGUAGE,
+      timeoutMs: e.STT_TIMEOUT_MS,
     },
     groq: { apiKey: e.GROQ_API_KEY, baseUrl: e.GROQ_BASE_URL },
   };

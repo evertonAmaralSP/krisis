@@ -3,8 +3,8 @@
 Portal pessoal para treinar entrevistas de emprego com um entrevistador de IA, em português do Brasil.
 Plano, decisões e etapas: [`docs/PLANO.md`](docs/PLANO.md). Telas de referência: [`docs/design/`](docs/design/).
 
-> **Etapa atual: 1** — login, chat por texto com modelo real (Groq), criação de entrevista, histórico e tema.
-> Voz (gravação, transcrição e fala) entra nas etapas 2 e 3.
+> **Etapa atual: 2** — login, entrevista por **voz** (gravação no navegador + transcrição no Groq) ou por texto, histórico e tema.
+> A fala do entrevistador (Kokoro) entra na etapa 3.
 
 ## Requisitos
 
@@ -56,10 +56,28 @@ Todas estão comentadas em [`.env.example`](.env.example). As principais:
 | `LLM_MODEL` | `openai/gpt-oss-20b` | Nome do modelo no fornecedor |
 | `LLM_REASONING_EFFORT` | `low` | Só para modelos com raciocínio; vazio nos demais |
 | `LLM_MAX_TOKENS` | `1024` | Limite de tokens por resposta |
+| `STT_ENGINE` | `groq` | Motor de transcrição, escolhido na `EngineFactory` (`groq`, `fake`) |
+| `STT_MODEL` | `whisper-large-v3-turbo` | Modelo de transcrição no fornecedor |
+| `STT_LANGUAGE` | `pt` | Idioma falado (ISO-639-1) |
 | `SESSION_TTL_DAYS` | `30` | Validade da sessão |
 | `COOKIE_SECURE` | `false` | `true` só quando servido por HTTPS |
 
-Para testar sem chave de API: `LLM_ENGINE=fake`.
+Para testar sem chave de API: `LLM_ENGINE=fake` e `STT_ENGINE=fake`.
+
+## Microfone
+
+- Use Chrome, Edge ou Firefox atualizados. O navegador pede permissão na primeira vez; se negar, libere no ícone de cadeado da barra de endereço.
+- O portal precisa ser aberto em `http://localhost` (ou HTTPS): o navegador só libera o microfone nesses endereços.
+- Clique em **Falar**, responda e clique em **Terminei de falar**. **Esc** cancela a gravação. O limite é de 5 minutos por resposta.
+- Gravação em silêncio (microfone mudo ou errado) é barrada antes de enviar: aparece "Não ouvi nada".
+
+## Rodar uma segunda cópia (ex.: numa worktree)
+
+```bash
+PORT=3101 API_PORT=3101 WEB_PORT=5273 SQLITE_PATH=/tmp/krisis-teste.db npm run dev
+```
+
+`PORT` é a API; `API_PORT` e `WEB_PORT` são lidos pelo Vite. Com um `SQLITE_PATH` próprio, a cópia não mexe no banco principal.
 
 ## Comandos
 
@@ -97,7 +115,7 @@ server/src/
   application/   Serviços (AuthService, InterviewService, ConversationService) e instruções do entrevistador
   infra/
     datasource/  DataSourceFactory · SqlDataSource (template method) · sqlite/ · sql/ (Kysely: esquema, migrations, repositórios)
-    engines/     EngineFactory · base/ (template method) · openai-compatible/ (Groq) · fake/
+    engines/     EngineFactory · base/ (template method: LLM e STT) · openai-compatible/ (Groq) · fake/
     security/    Argon2
   http/v1/       Rotas finas sob /api/v1
   app.ts         buildApp() sem listen (servidor, testes, serverless)
@@ -106,5 +124,5 @@ openapi/v1.json  Contrato publicado (um teste falha se ficar desatualizado)
 ```
 
 - **Trocar de banco:** criar uma classe que estende `SqlDataSource` (só `createDialect()`) ou implementa `DataSource`, e registrá-la em `DataSourceFactory`.
-- **Trocar de motor:** criar uma classe que estende `BaseLlmEngine` (só `doComplete()`), registrá-la em `EngineFactory` e mudar `LLM_ENGINE`.
+- **Trocar de motor:** criar uma classe que estende `BaseLlmEngine` (só `doComplete()`) ou `BaseSttEngine` (só `doTranscribe()`), registrá-la em `EngineFactory` e mudar `LLM_ENGINE`/`STT_ENGINE`.
 - **Mudança que quebra a API:** nova versão em `contracts/src/v2` e `http/v2`, convivendo com a v1.
