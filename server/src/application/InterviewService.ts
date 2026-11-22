@@ -41,6 +41,10 @@ export class InterviewService {
     return { ...interview, messages };
   }
 
+  async delete(userId: string, id: string): Promise<void> {
+    if (!(await this.repos.interviews.delete(id, userId))) throw notFound('Entrevista');
+  }
+
   list(userId: string): Promise<Interview[]> {
     return this.repos.interviews.listByUser(userId);
   }

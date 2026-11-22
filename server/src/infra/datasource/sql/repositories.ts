@@ -32,6 +32,7 @@ const toUser = (r: Selectable<UsersTable>): User => ({
   name: r.name,
   email: r.email,
   passwordHash: r.password_hash,
+  ttsVoice: r.tts_voice,
   createdAt: new Date(r.created_at),
   updatedAt: new Date(r.updated_at),
 });
@@ -94,6 +95,7 @@ class SqlUserRepository implements UserRepository {
       name: input.name,
       email: input.email.toLowerCase(),
       password_hash: input.passwordHash,
+      tts_voice: null,
       created_at: now,
       updated_at: now,
     };
@@ -101,13 +103,14 @@ class SqlUserRepository implements UserRepository {
     return toUser(row);
   }
 
-  async update(id: string, patch: Partial<Pick<User, 'name' | 'email' | 'passwordHash'>>) {
+  async update(id: string, patch: Partial<Pick<User, 'name' | 'email' | 'passwordHash' | 'ttsVoice'>>) {
     await this.db
       .updateTable('users')
       .set({
         ...(patch.name !== undefined && { name: patch.name }),
         ...(patch.email !== undefined && { email: patch.email.toLowerCase() }),
         ...(patch.passwordHash !== undefined && { password_hash: patch.passwordHash }),
+        ...(patch.ttsVoice !== undefined && { tts_voice: patch.ttsVoice }),
         updated_at: iso(new Date()),
       })
       .where('id', '=', id)
@@ -197,6 +200,15 @@ class SqlInterviewRepository implements InterviewRepository {
       .where('user_id', '=', userId)
       .executeTakeFirst();
     return r ? toInterview(r) : null;
+  }
+
+  async delete(id: string, userId: string) {
+    const r = await this.db
+      .deleteFrom('interviews')
+      .where('id', '=', id)
+      .where('user_id', '=', userId)
+      .executeTakeFirst();
+    return Number(r.numDeletedRows) > 0;
   }
 
   async listByUser(userId: string) {

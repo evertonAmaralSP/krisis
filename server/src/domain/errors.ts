@@ -9,6 +9,7 @@ export type ErrorCode =
   | 'UNSUPPORTED_MEDIA'
   | 'NO_SPEECH'
   | 'TTS_DISABLED'
+  | 'INVALID_PASSWORD'
   | 'ENGINE_FAILURE'
   | 'INTERNAL';
 

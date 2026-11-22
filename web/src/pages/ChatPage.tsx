@@ -167,7 +167,7 @@ export function ChatPage() {
                               className={styles.audioButton}
                               title={`${v.label}${isDefault ? ' · voz padrão' : ''}`}
                               aria-label={`Ouvir com a voz ${v.label}${isDefault ? ', padrão' : ''}`}
-                              onClick={() => void speech.play(m.id, isDefault ? undefined : v.id)}
+                              onClick={() => void speech.play(m.id, v.id)}
                             >
                               <IconPlay size={12} /> {name}
                               {isDefault && <span className={styles.defaultDot} aria-hidden="true" />}

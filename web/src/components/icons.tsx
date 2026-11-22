@@ -68,3 +68,8 @@ export const IconPlay = ({ size = 14 }: P) => (
     <path d="M8 5v14l11-7z" />
   </svg>
 );
+export const IconTrash = ({ size = 16 }: P) => (
+  <svg {...base(size)}>
+    <path d="M4 7h16M10 11v6M14 11v6M6 7l1 12a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2l1-12M9 7V4h6v3" />
+  </svg>
+);

@@ -75,3 +75,34 @@ export function appendTurn(
 export function useVoices() {
   return useQuery({ queryKey: ['speech', 'voices'], queryFn: api.voices, staleTime: Infinity });
 }
+
+export function useAccount() {
+  return useQuery({ queryKey: ['account'], queryFn: api.account });
+}
+
+export function useUpdateAccount() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: api.updateAccount,
+    onSuccess: (account) => {
+      qc.setQueryData(['account'], account);
+      qc.setQueryData(keys.me, { id: account.id, name: account.name, email: account.email });
+      void qc.invalidateQueries({ queryKey: ['speech', 'voices'] });
+    },
+  });
+}
+
+export function useChangePassword() {
+  return useMutation({ mutationFn: api.changePassword });
+}
+
+export function useDeleteInterview() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: api.deleteInterview,
+    onSuccess: (_void, id) => {
+      qc.removeQueries({ queryKey: keys.interview(id) });
+      void qc.invalidateQueries({ queryKey: keys.interviews, exact: true });
+    },
+  });
+}

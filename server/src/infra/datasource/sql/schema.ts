@@ -7,6 +7,7 @@ export interface UsersTable {
   name: string;
   email: string;
   password_hash: string;
+  tts_voice: string | null;
   created_at: string;
   updated_at: string;
 }

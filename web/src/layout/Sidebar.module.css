@@ -208,3 +208,41 @@
     background: rgba(13, 7, 24, 0.5);
   }
 }
+
+/* Etapa 4: apagar entrevista */
+.itemWrap {
+  position: relative;
+}
+.itemWrap .item {
+  padding-right: 44px;
+}
+.deleteButton {
+  position: absolute;
+  top: 8px;
+  right: 6px;
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.itemWrap:hover .deleteButton,
+.deleteButton:focus-visible {
+  opacity: 1;
+}
+.deleteButton:hover {
+  background: var(--danger-bg);
+  color: var(--coral);
+}
+/* Telas de toque não têm hover: o botão fica sempre visível. */
+@media (hover: none) {
+  .deleteButton {
+    opacity: 1;
+  }
+}

@@ -1,4 +1,5 @@
 .venv/
-models/
+# sem barra no fim: cobre a pasta e também o atalho criado nas worktrees
+models
 __pycache__/
 amostras/

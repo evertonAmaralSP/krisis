@@ -9,7 +9,7 @@ export interface UserRepository {
   findById(id: string): Promise<User | null>;
   findByEmail(email: string): Promise<User | null>;
   create(input: { name: string; email: string; passwordHash: string }): Promise<User>;
-  update(id: string, patch: Partial<Pick<User, 'name' | 'email' | 'passwordHash'>>): Promise<User>;
+  update(id: string, patch: Partial<Pick<User, 'name' | 'email' | 'passwordHash' | 'ttsVoice'>>): Promise<User>;
 }
 
 export interface SessionRepository {
@@ -24,6 +24,8 @@ export interface InterviewRepository {
   create(input: InterviewConfig & { userId: string; engines: EngineNames }): Promise<Interview>;
   findById(id: string, userId: string): Promise<Interview | null>;
   listByUser(userId: string): Promise<Interview[]>;
+  /** Apaga a entrevista (e as mensagens, em cascata). false se não existir ou não for do usuário. */
+  delete(id: string, userId: string): Promise<boolean>;
 }
 
 export type NewMessage = Omit<Message, 'id' | 'createdAt'>;
