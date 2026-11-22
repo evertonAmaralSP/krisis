@@ -7,6 +7,7 @@ import { ConversationService } from './application/ConversationService.ts';
 import { InterviewService } from './application/InterviewService.ts';
 import type { LlmResolver, SttResolver, TtsResolver } from './application/LlmResolver.ts';
 import { SpeechService } from './application/SpeechService.ts';
+import { AccountService } from './application/AccountService.ts';
 import { TranscriptionService } from './application/TranscriptionService.ts';
 import type { Repositories } from './ports/repositories.ts';
 import type { PasswordHasher } from './ports/security.ts';
@@ -17,6 +18,7 @@ export interface Services {
   conversation: ConversationService;
   transcription: TranscriptionService;
   speech: SpeechService;
+  account: AccountService;
 }
 
 export function createServices(deps: {
@@ -29,11 +31,13 @@ export function createServices(deps: {
   sessionTtlDays: number;
 }): Services {
   const conversation = new ConversationService(deps.repos, deps.llm);
+  const speech = new SpeechService(deps.repos, deps.tts, deps.voices);
   return {
     auth: new AuthService(deps.repos, deps.hasher, deps.sessionTtlDays),
     interviews: new InterviewService(deps.repos, deps.llm, deps.stt, deps.tts, conversation),
     conversation,
     transcription: new TranscriptionService(deps.repos, deps.stt),
-    speech: new SpeechService(deps.repos, deps.tts, deps.voices),
+    speech,
+    account: new AccountService(deps.repos, deps.hasher, () => speech.voiceIds()),
   };
 }

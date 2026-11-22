@@ -9,14 +9,14 @@ import { z } from 'zod';
 import type { Services } from '../../container.ts';
 import { AppError } from '../../domain/errors.ts';
 import { currentUser, requireSession, SESSION_COOKIE } from './session.ts';
-import { toInterviewDto, toInterviewSummaryDto, toMessageDto, toUserDto } from './mappers.ts';
+import { toAccountDto, toInterviewDto, toInterviewSummaryDto, toMessageDto, toUserDto } from './mappers.ts';
 
 export interface V1Options {
   services: Services;
   cookieSecure: boolean;
 }
 
-const errors = (...codes: (400 | 401 | 404 | 409 | 413 | 415 | 422 | 502)[]) =>
+const errors = (...codes: (400 | 401 | 403 | 404 | 409 | 413 | 415 | 422 | 502)[]) =>
   Object.fromEntries(codes.map((c) => [c, v1.ErrorBody]));
 
 export const v1Routes: FastifyPluginAsyncZod<V1Options> = async (app, { services, cookieSecure }) => {
@@ -176,6 +176,98 @@ export const v1Routes: FastifyPluginAsyncZod<V1Options> = async (app, { services
       },
     );
 
+    // ---------- Conta ----------
+
+    s.get(
+      '/account',
+      {
+        schema: {
+          tags: ['account'],
+          summary: 'Dados da conta',
+          security: [{ cookieAuth: [] }],
+          response: { 200: v1.Account, ...errors(401) },
+        },
+      },
+      async (request) => toAccountDto(await services.account.get(currentUser(request).id)),
+    );
+
+    s.patch(
+      '/account',
+      {
+        schema: {
+          tags: ['account'],
+          summary: 'Alterar nome, e-mail ou voz preferida',
+          description: 'Trocar o e-mail exige `currentPassword`. `ttsVoice: null` volta à voz padrão do servidor.',
+          security: [{ cookieAuth: [] }],
+          body: v1.UpdateAccountBody,
+          response: { 200: v1.Account, ...errors(400, 401, 403, 409) },
+        },
+      },
+      async (request) => toAccountDto(await services.account.update(currentUser(request).id, request.body)),
+    );
+
+    s.post(
+      '/account/password',
+      {
+        schema: {
+          tags: ['account'],
+          summary: 'Trocar a senha',
+          description: 'Exige a senha atual. Encerra todas as outras sessões; a atual continua.',
+          security: [{ cookieAuth: [] }],
+          body: v1.ChangePasswordBody,
+          response: { 204: z.null(), ...errors(400, 401, 403) },
+        },
+      },
+      async (request, reply) => {
+        await services.account.changePassword(
+          currentUser(request).id,
+          request.auth!.sessionId,
+          request.body.currentPassword,
+          request.body.newPassword,
+        );
+        return reply.code(204).send(null);
+      },
+    );
+
+    s.delete(
+      '/interviews/:id',
+      {
+        schema: {
+          tags: ['interviews'],
+          summary: 'Apagar entrevista',
+          description: 'Apaga a entrevista e todas as mensagens dela. Não há como desfazer.',
+          security: [{ cookieAuth: [] }],
+          params: v1.IdParams,
+          response: { 204: z.null(), ...errors(401, 404) },
+        },
+      },
+      async (request, reply) => {
+        await services.interviews.delete(currentUser(request).id, request.params.id);
+        return reply.code(204).send(null);
+      },
+    );
+
+    s.get(
+      '/speech/voices/:voice/sample',
+      {
+        schema: {
+          tags: ['interviews'],
+          summary: 'Amostra de uma voz',
+          description: 'Uma frase fixa de entrevista na voz pedida, para escolher a voz preferida.',
+          security: [{ cookieAuth: [] }],
+          params: v1.VoiceParams,
+          response: errors(400, 401, 404, 502),
+        },
+      },
+      async (request, reply) => {
+        const out = await services.speech.sample(request.params.voice);
+        return (reply as FastifyReply)
+          .header('content-type', out.mimeType)
+          .header('cache-control', 'private, max-age=600')
+          .send(out.audio);
+      },
+    );
+
     s.get(
       '/speech/voices',
       {
@@ -187,7 +279,7 @@ export const v1Routes: FastifyPluginAsyncZod<V1Options> = async (app, { services
           response: { 200: v1.VoiceList, ...errors(401) },
         },
       },
-      async () => services.speech.listVoices(),
+      async (request) => services.speech.listVoices(currentUser(request).id),
     );
 
     s.get(
@@ -216,7 +308,11 @@ export const v1Routes: FastifyPluginAsyncZod<V1Options> = async (app, { services
           .header('content-type', out.mimeType)
           .header(v1.SPEECH_PARTS_HEADER, String(out.parts))
           .header(v1.SPEECH_MS_HEADER, String(out.ms))
-          .header('cache-control', 'private, max-age=600') // curto: o áudio muda se TTS_VOICE/TTS_SPEED mudarem
+          .header(
+            'cache-control',
+            // Sem ?voice= a voz é a preferida da pessoa, que pode mudar: não guardar.
+            request.query.voice ? 'private, max-age=600' : 'no-store',
+          )
           .header('access-control-expose-headers', `${v1.SPEECH_PARTS_HEADER}, ${v1.SPEECH_MS_HEADER}`)
           .send(out.audio);
       },

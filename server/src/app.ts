@@ -32,6 +32,7 @@ const STATUS: Record<ErrorCode, number> = {
   UNSUPPORTED_MEDIA: 415,
   NO_SPEECH: 422,
   TTS_DISABLED: 404,
+  INVALID_PASSWORD: 403,
   ENGINE_FAILURE: 502,
   INTERNAL: 500,
 };
@@ -66,6 +67,7 @@ export async function buildApp({ services, logger, cookieSecure }: BuildAppOptio
       tags: [
         { name: 'auth', description: 'Sessão' },
         { name: 'interviews', description: 'Entrevistas e turnos' },
+        { name: 'account', description: 'Conta e preferências' },
       ],
       components: {
         securitySchemes: {
@@ -145,6 +147,13 @@ function withMultipartBodies<T>(doc: T): T {
           },
         },
       },
+    };
+  }
+  const sample = paths?.['/api/v1/speech/voices/{voice}/sample']?.get as { responses?: Record<string, unknown> } | undefined;
+  if (sample) {
+    sample.responses = {
+      200: { description: 'Áudio da amostra.', content: { 'audio/wav': { schema: { type: 'string', format: 'binary' } } } },
+      ...sample.responses,
     };
   }
   const speech = paths?.['/api/v1/messages/{id}/speech']?.get as { responses?: Record<string, unknown> } | undefined;

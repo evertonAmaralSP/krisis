@@ -131,20 +131,21 @@ Estas decisões prevalecem sobre trechos anteriores deste documento quando houve
 | Método e rota | O que faz |
 |---|---|
 | `POST /auth/login`, `POST /auth/logout`, `GET /auth/me` | Sessão |
-| `GET /account`, `PATCH /account` | Nome e e-mail |
+| `GET /account`, `PATCH /account` | Nome, e-mail e voz preferida |
 | `POST /account/password` | Trocar senha |
 | `GET /interviews`, `POST /interviews` | Listar e criar entrevistas |
-| `GET /interviews/{id}` | Entrevista com mensagens |
+| `GET /interviews/{id}`, `DELETE /interviews/{id}` | Entrevista com mensagens; apagar |
 | `POST /interviews/{id}/transcriptions` | Áudio (multipart) → texto da fala |
 | `POST /interviews/{id}/messages` | Texto do candidato → resposta do entrevistador (usado pela voz e pelo texto) |
-| `GET /messages/{id}/speech` | Áudio da resposta |
+| `GET /messages/{id}/speech?part=N&voice=` | Áudio da resposta, trecho a trecho |
+| `GET /speech/voices`, `GET /speech/voices/{voice}/sample` | Vozes disponíveis; amostra |
 | `POST /interviews/{id}/finish`, `GET /interviews/{id}/feedback` | Encerrar e ler o feedback |
 
 O turno por voz são duas chamadas (transcrever, depois responder), para a tela mostrar "transcrevendo" e "pensando" como estados reais e exibir a fala transcrita antes da resposta.
 
 ### Esquema do banco
 ```
-users(id, name, email UNIQUE, password_hash, created_at, updated_at)
+users(id, name, email UNIQUE, password_hash, tts_voice, created_at, updated_at)
 sessions(id, user_id, expires_at, created_at)
 interviews(id, user_id, title, role, company, level, kind, job_description, resume,
            stt_engine, llm_engine, tts_engine, status, created_at, finished_at)
@@ -176,7 +177,7 @@ A marca é **KRISIS** (do próprio autor). A fonte da verdade é `docs/marca/KRI
 1. Estrutura do projeto, login e tela de chat funcionando com mensagens de texto e um modelo de linguagem real. (Entregue junto: formulário de nova entrevista, histórico na barra lateral e tema em Configurações.)
 2. Gravação no navegador e transcrição. (Entregue: Groq `whisper-large-v3-turbo` via endpoint compatível com a OpenAI, áudio WebM/Opus sem conversão, resposta `json` e duração medida no navegador, `language=pt` + contexto da vaga no `prompt`, limite de 5 min/10 MB, silêncio barrado no navegador pelo nível do som e alucinações conhecidas do Whisper barradas no servidor com 422. Medido: ~1,3 s do "Terminei de falar" ao texto do entrevistador numa resposta de 15 s.)
 3. Voz com Kokoro e reprodução no navegador. (Entregue: serviço Python próprio em `tts-kokoro/` no formato `/v1/audio/speech` da OpenAI, Kokoro 0.9.4 com PyTorch de CPU, pesos num commit fixo do Hugging Face (10/04/2025) conferidos por SHA256 e carregados offline com `weights_only`; síntese numa thread dedicada com 8 threads de CPU; resposta dividida em trechos (primeiro curto em pausa natural, máximo de 70 caracteres) tocados em sequência com pré-busca; `GET /messages/{id}/speech?part=N`; `TTS_ENGINE=none` desliga a voz. Medido: texto do entrevistador em ~1–1,3 s e voz começando em ~2–3 s depois do "Terminei de falar", conforme o tamanho da primeira frase; sem pausas entre trechos, exceto ~1 s depois de um primeiro trecho muito curto, como "Certo.".)
-4. Formulário de nova entrevista, histórico e persistência; conta em Configurações (nome, e-mail, troca de senha).
+4. Formulário de nova entrevista, histórico e persistência; conta em Configurações (nome, e-mail, troca de senha). (Entregue: `GET/PATCH /account`, `POST /account/password` (encerra as outras sessões), `DELETE /interviews/{id}` com confirmação em `<dialog>`, voz preferida no banco (`users.tts_voice`, migration 002) com amostra em `GET /speech/voices/{voice}/sample`; senha errada responde 403 `INVALID_PASSWORD`.)
 5. Feedback final.
 
 **v1**

@@ -1,9 +1,10 @@
 import type { v1 } from '@krisis/contracts';
 import { useState } from 'react';
-import { Link, NavLink, useNavigate } from 'react-router';
-import { useInterviews, useLogout } from '../api/queries.ts';
+import { Link, NavLink, useLocation, useNavigate } from 'react-router';
+import { useDeleteInterview, useInterviews, useLogout } from '../api/queries.ts';
+import { ConfirmDialog } from '../components/ConfirmDialog.tsx';
 import { Brand } from '../components/Brand.tsx';
-import { IconClose, IconGear, IconLogout, IconPanel, IconPlus } from '../components/icons.tsx';
+import { IconClose, IconGear, IconLogout, IconPanel, IconPlus, IconTrash } from '../components/icons.tsx';
 import { formatShortDate, LEVEL_LABEL, KIND_LABEL } from '../lib/format.ts';
 import styles from './Sidebar.module.css';
 
@@ -27,6 +28,19 @@ export function Sidebar({ user, drawerOpen, onCloseDrawer }: Props) {
   const interviews = useInterviews();
   const logout = useLogout();
   const navigate = useNavigate();
+  const location = useLocation();
+  const remove = useDeleteInterview();
+  const [toDelete, setToDelete] = useState<v1.InterviewSummary | null>(null);
+
+  const confirmDelete = () => {
+    if (!toDelete) return;
+    remove.mutate(toDelete.id, {
+      onSuccess: () => {
+        if (location.pathname.startsWith(`/entrevistas/${toDelete.id}`)) navigate('/', { replace: true });
+        setToDelete(null);
+      },
+    });
+  };
 
   const toggle = () => {
     const next = !collapsed;
@@ -84,7 +98,7 @@ export function Sidebar({ user, drawerOpen, onCloseDrawer }: Props) {
               {interviews.data?.length === 0 && <p className={styles.muted}>Nenhuma entrevista ainda.</p>}
               <ul className={styles.list}>
                 {interviews.data?.map((i) => (
-                  <li key={i.id}>
+                  <li key={i.id} className={styles.itemWrap}>
                     <NavLink
                       to={`/entrevistas/${i.id}`}
                       className={({ isActive }) => `${styles.item} ${isActive ? styles.itemActive : ''}`}
@@ -100,6 +114,18 @@ export function Sidebar({ user, drawerOpen, onCloseDrawer }: Props) {
                         {i.status === 'active' ? 'Em andamento' : 'Encerrada'}
                       </span>
                     </NavLink>
+                    <button
+                      type="button"
+                      className={styles.deleteButton}
+                      aria-label={`Apagar a entrevista ${i.role}, ${i.company}`}
+                      title="Apagar entrevista"
+                      onClick={() => {
+                        remove.reset();
+                        setToDelete(i);
+                      }}
+                    >
+                      <IconTrash />
+                    </button>
                   </li>
                 ))}
               </ul>
@@ -130,6 +156,20 @@ export function Sidebar({ user, drawerOpen, onCloseDrawer }: Props) {
           </button>
         </div>
       </nav>
+
+      <ConfirmDialog
+        open={toDelete !== null}
+        title="Apagar entrevista?"
+        confirmLabel="Apagar"
+        busyLabel="Apagando…"
+        busy={remove.isPending}
+        error={remove.isError ? remove.error.message : null}
+        onCancel={() => setToDelete(null)}
+        onConfirm={confirmDelete}
+      >
+        A entrevista <strong>{toDelete?.role}</strong> ({toDelete?.company}) e todas as mensagens dela serão apagadas.
+        Não há como desfazer.
+      </ConfirmDialog>
     </>
   );
 }

@@ -69,6 +69,18 @@ async function fetchSpeech(messageId: string, part: number, voice?: string): Pro
 export const api = {
   speech: fetchSpeech,
   voices: () => request<v1.VoiceList>('GET', '/speech/voices'),
+  voiceSample: async (voice: string): Promise<Blob> => {
+    const res = await fetch(`${BASE}/speech/voices/${encodeURIComponent(voice)}/sample`, { credentials: 'same-origin' });
+    if (!res.ok) {
+      const err = ((await res.json().catch(() => null)) as v1.ErrorBody | null)?.error;
+      throw new ApiError(res.status, err?.code ?? 'INTERNAL', err?.message ?? `Erro ${res.status}.`);
+    }
+    return res.blob();
+  },
+  account: () => request<v1.Account>('GET', '/account'),
+  updateAccount: (body: v1.UpdateAccountBody) => request<v1.Account>('PATCH', '/account', body),
+  changePassword: (body: v1.ChangePasswordBody) => request<void>('POST', '/account/password', body),
+  deleteInterview: (id: string) => request<void>('DELETE', `/interviews/${encodeURIComponent(id)}`),
   login: (body: v1.LoginBody) => request<v1.MeResponse>('POST', '/auth/login', body),
   logout: () => request<void>('POST', '/auth/logout'),
   me: () => request<v1.MeResponse>('GET', '/auth/me'),

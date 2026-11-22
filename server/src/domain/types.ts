@@ -11,6 +11,8 @@ export interface User {
   name: string;
   email: string;
   passwordHash: string;
+  /** Voz preferida; null = TTS_VOICE do servidor. */
+  ttsVoice: string | null;
   createdAt: Date;
   updatedAt: Date;
 }

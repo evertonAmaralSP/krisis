@@ -166,6 +166,15 @@ describe('SpeechService', () => {
     await ds.close();
   });
 
+  it('sem voz definida em lugar nenhum, deixa o motor usar a dele (não envia voz vazia)', async () => {
+    const { ds, userId, messageId } = await seed('fake');
+    const tts = new FakeTtsEngine(logger());
+    const service = new SpeechService(ds.repositories, new CachedEngineResolver(() => tts, 'fake'), { default: '', available: [] });
+    await service.speak(userId, messageId, 0);
+    expect(tts.calls[0]).not.toHaveProperty('voice');
+    await ds.close();
+  });
+
   it('guarda só o tempo da primeira síntese; "Ouvir de novo" não sobrescreve', async () => {
     const { ds, userId, messageId } = await seed('fake');
     const tts = new FakeTtsEngine(logger());

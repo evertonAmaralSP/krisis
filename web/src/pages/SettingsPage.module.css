@@ -125,3 +125,118 @@
     padding: 28px 16px 40px;
   }
 }
+
+/* Etapa 4: conta, senha e voz */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.grid3 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 18px;
+}
+:global(.field) input:disabled {
+  opacity: 0.55;
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 14px;
+}
+.ok {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ok-text);
+}
+.voiceList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.voiceRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 14px;
+  border: 1px solid var(--line-strong);
+  border-radius: 14px;
+}
+.voiceRow:has(input:checked) {
+  border-color: var(--accent);
+  background: var(--panel-2);
+}
+.voiceOption {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  cursor: pointer;
+}
+.voiceOption input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.radioMark {
+  width: 20px;
+  height: 20px;
+  flex: none;
+  border: 2px solid var(--line-strong);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+}
+.voiceOption:has(input:checked) .radioMark {
+  border-color: var(--accent);
+}
+.voiceOption:has(input:checked) .radioMark::after {
+  content: '';
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent);
+}
+.voiceOption:has(input:focus-visible) {
+  outline: 2px solid #b8307a;
+  outline-offset: 4px;
+  border-radius: 8px;
+}
+.sample,
+.sampleActive {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.sample {
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--muted);
+}
+.sampleActive {
+  border: 0;
+  background: var(--warn-bg);
+  color: var(--warn-text);
+}
+.linkButton {
+  align-self: flex-start;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: underline;
+  cursor: pointer;
+}

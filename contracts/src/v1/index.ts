@@ -17,6 +17,7 @@ export const ErrorBody = z
 export type ErrorBody = z.infer<typeof ErrorBody>;
 
 export const IdParams = z.object({ id: z.string().min(1) });
+export const VoiceParams = z.object({ voice: z.string().regex(/^[a-z0-9_-]{1,40}$/) });
 
 // ---------- Autenticação e conta ----------
 
@@ -38,6 +39,36 @@ export const LoginBody = z
 export type LoginBody = z.infer<typeof LoginBody>;
 
 export const MeResponse = z.object({ user: User }).meta({ id: 'MeResponse' });
+
+export const Account = User.extend({
+  /** Voz preferida do entrevistador; null = padrão do servidor (TTS_VOICE). */
+  ttsVoice: z.string().nullable(),
+}).meta({ id: 'Account' });
+export type Account = z.infer<typeof Account>;
+
+export const UpdateAccountBody = z
+  .object({
+    name: z.string().trim().min(1).max(80).optional(),
+    email: z.email().optional(),
+    /** Obrigatória só para trocar o e-mail. */
+    currentPassword: z.string().min(1).optional(),
+    ttsVoice: z
+      .string()
+      .regex(/^[a-z0-9_-]{1,40}$/)
+      .nullable()
+      .optional(),
+  })
+  .meta({ id: 'UpdateAccountBody' });
+export type UpdateAccountBody = z.infer<typeof UpdateAccountBody>;
+
+export const PASSWORD_MIN = 12;
+export const ChangePasswordBody = z
+  .object({
+    currentPassword: z.string().min(1),
+    newPassword: z.string().min(PASSWORD_MIN).max(200),
+  })
+  .meta({ id: 'ChangePasswordBody' });
+export type ChangePasswordBody = z.infer<typeof ChangePasswordBody>;
 export type MeResponse = z.infer<typeof MeResponse>;
 
 // ---------- Entrevistas ----------
@@ -188,8 +219,10 @@ export type Voice = z.infer<typeof Voice>;
 
 export const VoiceList = z
   .object({
-    /** Voz usada na reprodução automática (TTS_VOICE). */
+    /** Voz usada na reprodução automática (preferida da pessoa ou TTS_VOICE). */
     default: z.string(),
+    /** false com TTS_ENGINE=none: não há voz no servidor. */
+    enabled: z.boolean(),
     voices: z.array(Voice),
   })
   .meta({ id: 'VoiceList' });

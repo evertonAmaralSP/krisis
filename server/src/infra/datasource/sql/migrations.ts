@@ -81,11 +81,21 @@ const m001_inicial: Migration = {
   },
 };
 
+const m002_voz_preferida: Migration = {
+  async up(db: Kysely<any>) {
+    await db.schema.alterTable('users').addColumn('tts_voice', 'text').execute();
+  },
+  async down(db: Kysely<any>) {
+    await db.schema.alterTable('users').dropColumn('tts_voice').execute();
+  },
+};
+
 /** Migrations embutidas no código: funcionam igual em servidor e em função serverless. */
 export const migrationProvider: MigrationProvider = {
   async getMigrations() {
     return {
       '001_inicial': m001_inicial,
+      '002_voz_preferida': m002_voz_preferida,
     };
   },
 };

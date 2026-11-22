@@ -3,6 +3,7 @@ import type { v1 } from '@krisis/contracts';
 import type { Interview, Message, User } from '../../domain/types.ts';
 
 export const toUserDto = (u: User): v1.User => ({ id: u.id, name: u.name, email: u.email });
+export const toAccountDto = (u: User): v1.Account => ({ ...toUserDto(u), ttsVoice: u.ttsVoice });
 
 export const toMessageDto = (m: Message): v1.Message => ({
   id: m.id,

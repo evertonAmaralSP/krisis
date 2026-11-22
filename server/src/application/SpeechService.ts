@@ -6,6 +6,9 @@ import { splitSentences } from './speech/sentences.ts';
 
 export const TTS_DISABLED = 'none';
 
+export const VOICE_SAMPLE_TEXT =
+  'Olá! Eu serei o seu entrevistador hoje. Para começar, me conte sobre um projeto recente de que você se orgulha.';
+
 export interface SpeechPart {
   audio: Buffer;
   mimeType: TtsResult['mimeType'];
@@ -34,15 +37,40 @@ export class SpeechService {
     private readonly voices: { default: string; available: string[] } = { default: '', available: [] },
   ) {}
 
-  listVoices(): { default: string; voices: { id: string; label: string }[] } {
-    const ids = this.voices.available.includes(this.voices.default)
+  /** Ids aceitos: os de TTS_VOICES, mais o TTS_VOICE se não estiver na lista. */
+  voiceIds(): string[] {
+    return this.voices.available.includes(this.voices.default)
       ? this.voices.available
       : [this.voices.default, ...this.voices.available].filter(Boolean);
-    return { default: this.voices.default, voices: ids.map((id) => ({ id, label: voiceLabel(id) })) };
+  }
+
+  /** A voz da reprodução automática: a preferida da pessoa, se ainda existir; senão TTS_VOICE. */
+  private async defaultFor(userId: string): Promise<string> {
+    const user = await this.repos.users.findById(userId);
+    const preferred = user?.ttsVoice;
+    return preferred && this.voiceIds().includes(preferred) ? preferred : this.voices.default;
+  }
+
+  async listVoices(userId: string): Promise<{ default: string; enabled: boolean; voices: { id: string; label: string }[] }> {
+    return {
+      default: await this.defaultFor(userId),
+      enabled: this.tts.defaultName() !== TTS_DISABLED,
+      voices: this.voiceIds().map((id) => ({ id, label: voiceLabel(id) })),
+    };
+  }
+
+  /** Frase fixa para comparar vozes em Configurações. */
+  async sample(voice: string): Promise<{ audio: Buffer; mimeType: TtsResult['mimeType'] }> {
+    if (this.tts.defaultName() === TTS_DISABLED) {
+      throw new AppError('TTS_DISABLED', 'A voz do entrevistador está desligada (TTS_ENGINE=none).');
+    }
+    if (!this.voiceIds().includes(voice)) throw new AppError('BAD_REQUEST', `Voz não disponível: ${voice}.`);
+    const result = await this.tts.get(this.tts.defaultName()).synthesize({ text: VOICE_SAMPLE_TEXT, voice });
+    return { audio: result.audio, mimeType: result.mimeType };
   }
 
   async speak(userId: string, messageId: string, part: number, voice?: string): Promise<SpeechPart> {
-    if (voice !== undefined && !this.listVoices().voices.some((v) => v.id === voice)) {
+    if (voice !== undefined && !this.voiceIds().includes(voice)) {
       throw new AppError('BAD_REQUEST', `Voz não disponível: ${voice}.`);
     }
     const found = await this.repos.messages.findForUser(messageId, userId);
@@ -63,8 +91,11 @@ export class SpeechService {
     const text = sentences[part];
     if (text === undefined) throw notFound(`Parte ${part} da fala`);
 
-    const result = await this.tts.get(engineName).synthesize({ text, ...(voice !== undefined && { voice }) });
-    // Guarda só a primeira medição na voz padrão: é a espera que a pessoa teve de fato
+    // Sem voz pedida = reprodução automática: usa a preferida da pessoa.
+    const chosen = voice ?? (await this.defaultFor(userId));
+    // Sem voz definida em lugar nenhum: deixa o motor usar a dele.
+    const result = await this.tts.get(engineName).synthesize({ text, ...(chosen && { voice: chosen }) });
+    // Guarda só a primeira medição da reprodução automática: é a espera que a pessoa teve de fato
     // (replays e comparações de voz não contam).
     if (part === 0 && voice === undefined && message.timings.ttsMs === null) {
       await this.repos.messages.setTtsMs(message.id, result.ms);

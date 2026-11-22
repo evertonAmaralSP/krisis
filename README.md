@@ -3,7 +3,7 @@
 Portal pessoal para treinar entrevistas de emprego com um entrevistador de IA, em português do Brasil.
 Plano, decisões e etapas: [`docs/PLANO.md`](docs/PLANO.md). Telas de referência: [`docs/design/`](docs/design/).
 
-> **Etapa atual: 3** — entrevista por voz de ponta a ponta: você fala (transcrição no Groq), o entrevistador responde (modelo no Groq) e **fala** (Kokoro local, em CPU). Também por texto.
+> **Etapa atual: 4** — conta em Configurações (nome, e-mail, senha, voz preferida), apagar entrevistas no histórico; e, desde a etapa 3, entrevista por voz de ponta a ponta: você fala (transcrição no Groq), o entrevistador responde (modelo no Groq) e **fala** (Kokoro local, em CPU). Também por texto.
 
 ## Requisitos
 
@@ -95,6 +95,15 @@ Para testar sem chave de API: `LLM_ENGINE=fake` e `STT_ENGINE=fake`.
 - Gravação em silêncio (microfone mudo ou errado) é barrada antes de enviar: aparece "Não ouvi nada".
 - A voz do entrevistador toca sozinha depois de cada resposta, na voz padrão (`TTS_VOICE`). **Clicar em Falar interrompe** e começa a gravar.
 - Em cada fala, **Ouvir: Dora · Alex · Santa** toca a mesma frase em cada voz, para comparar (o ponto marca a padrão). A comparação não altera o tempo de voz registrado.
+
+## Configurações
+
+- **Conta:** nome e e-mail (trocar o e-mail pede a senha atual).
+- **Trocar senha:** pede a atual; encerra as outras sessões abertas, a atual continua. Esqueceu a senha? `npm run reset-password`.
+- **Voz do entrevistador:** escolha entre as vozes de `TTS_VOICES`, com "Ouvir amostra". A escolha fica no banco e vale em qualquer navegador; `TTS_VOICE` vira só o padrão inicial.
+- **Tema:** Sistema, Claro ou Escuro (salvo no navegador).
+
+No histórico, o ícone de lixeira em cada entrevista apaga a entrevista e as mensagens dela, depois de uma confirmação.
 
 ## Como a voz é gerada
 
