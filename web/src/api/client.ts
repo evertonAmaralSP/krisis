@@ -45,10 +45,11 @@ export interface SpeechChunk {
 }
 
 /** Áudio binário: não passa pelo request() de JSON. */
-async function fetchSpeech(messageId: string, part: number): Promise<SpeechChunk> {
+async function fetchSpeech(messageId: string, part: number, voice?: string): Promise<SpeechChunk> {
   let res: Response;
   try {
-    res = await fetch(`${BASE}/messages/${encodeURIComponent(messageId)}/speech?part=${part}`, {
+    const voiceParam = voice ? `&voice=${encodeURIComponent(voice)}` : '';
+    res = await fetch(`${BASE}/messages/${encodeURIComponent(messageId)}/speech?part=${part}${voiceParam}`, {
       credentials: 'same-origin',
     });
   } catch {
@@ -67,6 +68,7 @@ async function fetchSpeech(messageId: string, part: number): Promise<SpeechChunk
 
 export const api = {
   speech: fetchSpeech,
+  voices: () => request<v1.VoiceList>('GET', '/speech/voices'),
   login: (body: v1.LoginBody) => request<v1.MeResponse>('POST', '/auth/login', body),
   logout: () => request<void>('POST', '/auth/logout'),
   me: () => request<v1.MeResponse>('GET', '/auth/me'),

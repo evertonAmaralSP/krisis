@@ -78,6 +78,7 @@ Todas estão comentadas em [`.env.example`](.env.example). As principais:
 | `STT_LANGUAGE` | `pt` | Idioma falado (ISO-639-1) |
 | `TTS_ENGINE` | `kokoro` | Voz do entrevistador (`kokoro`, `fake`, `none` = sem voz) |
 | `TTS_VOICE` | `pf_dora` | `pf_dora` (feminina), `pm_alex` ou `pm_santa` (masculinas) |
+| `TTS_VOICES` | `pf_dora,pm_alex,pm_santa` | Vozes dos botões "Ouvir" em cada fala, para comparar na hora |
 | `TTS_SPEED` | `1.0` | Velocidade da fala (0,5 a 2) |
 | `TTS_THREADS` | `8` | Threads de CPU do Kokoro (8 foi o melhor num i7-1355U) |
 | `KOKORO_BASE_URL` | `http://127.0.0.1:8880/v1` | Endereço do serviço de voz |
@@ -92,7 +93,8 @@ Para testar sem chave de API: `LLM_ENGINE=fake` e `STT_ENGINE=fake`.
 - O portal precisa ser aberto em `http://localhost` (ou HTTPS): o navegador só libera o microfone nesses endereços.
 - Clique em **Falar**, responda e clique em **Terminei de falar**. **Esc** cancela a gravação. O limite é de 5 minutos por resposta.
 - Gravação em silêncio (microfone mudo ou errado) é barrada antes de enviar: aparece "Não ouvi nada".
-- A voz do entrevistador toca sozinha depois de cada resposta. **Clicar em Falar interrompe** e começa a gravar; "Ouvir" repete qualquer fala.
+- A voz do entrevistador toca sozinha depois de cada resposta, na voz padrão (`TTS_VOICE`). **Clicar em Falar interrompe** e começa a gravar.
+- Em cada fala, **Ouvir: Dora · Alex · Santa** toca a mesma frase em cada voz, para comparar (o ponto marca a padrão). A comparação não altera o tempo de voz registrado.
 
 ## Como a voz é gerada
 

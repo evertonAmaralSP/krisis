@@ -8,6 +8,8 @@ import { api, ApiError, type SpeechChunk } from '../api/client.ts';
  */
 export function useSpeech(onFirstPart?: (messageId: string, ms: number) => void) {
   const [playingId, setPlayingId] = useState<string | null>(null);
+  /** Voz pedida para a reprodução atual (undefined = padrão). */
+  const [playingVoice, setPlayingVoice] = useState<string | undefined>(undefined);
   const [error, setError] = useState<string | null>(null);
   const [disabled, setDisabled] = useState(false);
   const tokenRef = useRef(0);
@@ -47,13 +49,14 @@ export function useSpeech(onFirstPart?: (messageId: string, ms: number) => void)
     });
 
   const play = useCallback(
-    async (messageId: string) => {
+    async (messageId: string, voice?: string) => {
       stop();
       const token = ++tokenRef.current;
       setPlayingId(messageId);
+      setPlayingVoice(voice);
       setError(null);
       const fetchPart = (part: number) => {
-        const p = api.speech(messageId, part);
+        const p = api.speech(messageId, part, voice);
         p.catch(() => {}); // pré-busca descartada não vira erro solto
         return p;
       };
@@ -63,7 +66,7 @@ export function useSpeech(onFirstPart?: (messageId: string, ms: number) => void)
         while (next) {
           const chunk: SpeechChunk = await next;
           if (token !== tokenRef.current) return;
-          if (part === 0) onFirstPartRef.current?.(messageId, chunk.ms);
+          if (part === 0 && voice === undefined) onFirstPartRef.current?.(messageId, chunk.ms);
           next = part + 1 < chunk.parts ? fetchPart(part + 1) : null;
           await playBlob(chunk.blob, token);
           if (token !== tokenRef.current) return;
@@ -85,5 +88,5 @@ export function useSpeech(onFirstPart?: (messageId: string, ms: number) => void)
     [stop],
   );
 
-  return { playingId, error, disabled, play, stop, clearError: () => setError(null) };
+  return { playingId, playingVoice, error, disabled, play, stop, clearError: () => setError(null) };
 }

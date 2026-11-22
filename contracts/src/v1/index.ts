@@ -174,7 +174,26 @@ export type TranscriptionResponse = z.infer<typeof TranscriptionResponse>;
 export const SPEECH_PARTS_HEADER = 'x-speech-parts';
 export const SPEECH_MS_HEADER = 'x-tts-ms';
 // Sem .meta({ id }): o @fastify/swagger não resolve $ref em query string.
-export const SpeechQuery = z.object({ part: z.coerce.number().int().nonnegative().default(0) });
+export const SpeechQuery = z.object({
+  part: z.coerce.number().int().nonnegative().default(0),
+  /** Opcional: toca com outra voz da lista de GET /speech/voices (comparar vozes). */
+  voice: z
+    .string()
+    .regex(/^[a-z0-9_-]{1,40}$/)
+    .optional(),
+});
+
+export const Voice = z.object({ id: z.string(), label: z.string() }).meta({ id: 'Voice' });
+export type Voice = z.infer<typeof Voice>;
+
+export const VoiceList = z
+  .object({
+    /** Voz usada na reprodução automática (TTS_VOICE). */
+    default: z.string(),
+    voices: z.array(Voice),
+  })
+  .meta({ id: 'VoiceList' });
+export type VoiceList = z.infer<typeof VoiceList>;
 export type SpeechQuery = z.infer<typeof SpeechQuery>;
 
 export const SendMessageBody = z

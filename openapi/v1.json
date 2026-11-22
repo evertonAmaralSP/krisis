@@ -446,6 +446,39 @@
           "model"
         ]
       },
+      "VoiceInput": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "label"
+        ]
+      },
+      "VoiceListInput": {
+        "type": "object",
+        "properties": {
+          "default": {
+            "type": "string"
+          },
+          "voices": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VoiceInput"
+            }
+          }
+        },
+        "required": [
+          "default",
+          "voices"
+        ]
+      },
       "SendMessageBodyInput": {
         "type": "object",
         "properties": {
@@ -932,6 +965,41 @@
         ],
         "additionalProperties": false
       },
+      "Voice": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "label"
+        ],
+        "additionalProperties": false
+      },
+      "VoiceList": {
+        "type": "object",
+        "properties": {
+          "default": {
+            "type": "string"
+          },
+          "voices": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Voice"
+            }
+          }
+        },
+        "required": [
+          "default",
+          "voices"
+        ],
+        "additionalProperties": false
+      },
       "SendMessageBody": {
         "type": "object",
         "properties": {
@@ -1385,6 +1453,42 @@
         }
       }
     },
+    "/api/v1/speech/voices": {
+      "get": {
+        "summary": "Vozes disponíveis para o entrevistador",
+        "tags": [
+          "interviews"
+        ],
+        "description": "A voz padrão (TTS_VOICE) e as que podem ser comparadas com `?voice=` em GET /messages/{id}/speech.",
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VoiceList"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/v1/messages/{id}/speech": {
       "get": {
         "summary": "Voz de uma frase da fala do entrevistador",
@@ -1402,6 +1506,15 @@
             },
             "in": "query",
             "name": "part",
+            "required": false
+          },
+          {
+            "schema": {
+              "type": "string",
+              "pattern": "^[a-z0-9_-]{1,40}$"
+            },
+            "in": "query",
+            "name": "voice",
             "required": false
           },
           {

@@ -3,7 +3,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import type { v1 } from '@krisis/contracts';
 import { Link, useLocation, useNavigate, useParams } from 'react-router';
 import { ApiError } from '../api/client.ts';
-import { keys, useInterview } from '../api/queries.ts';
+import { keys, useInterview, useVoices } from '../api/queries.ts';
 import logo from '../assets/krisis-logo-128.png';
 import { IconMic, IconPlay, IconSend, IconStop } from '../components/icons.tsx';
 import { StatusPill } from '../chat/StatusPill.tsx';
@@ -30,6 +30,7 @@ export function ChatPage() {
         : old,
     ),
   );
+  const voices = useVoices();
   const turno = useTurno(id, { onReply: (messageId) => void speech.play(messageId) });
 
   // Primeira pergunta de uma entrevista recém-criada: fala sozinha uma vez.
@@ -146,16 +147,35 @@ export function ChatPage() {
                   <span className={styles.author}>Entrevistador</span>
                   <div className={styles.bubble}>{m.content}</div>
                   <div className={styles.metaRow}>
-                    {voiceOn &&
-                      (speech.playingId === m.id ? (
-                        <button type="button" className={styles.audioButtonActive} onClick={speech.stop}>
-                          <IconStop size={12} /> Parar voz
-                        </button>
-                      ) : (
-                        <button type="button" className={styles.audioButton} onClick={() => void speech.play(m.id)}>
-                          <IconPlay size={12} /> Ouvir
-                        </button>
-                      ))}
+                    {voiceOn && (
+                      <span className={styles.voiceGroup} role="group" aria-label="Ouvir esta fala com a voz">
+                        <span className={styles.voiceGroupLabel}>Ouvir:</span>
+                        {(voices.data?.voices ?? []).map((v) => {
+                          const isDefault = v.id === voices.data?.default;
+                          // Reprodução automática (sem voz pedida) acende o botão da voz padrão.
+                          const active =
+                            speech.playingId === m.id && (speech.playingVoice ?? voices.data?.default) === v.id;
+                          const name = v.label.split(' (')[0];
+                          return active ? (
+                            <button key={v.id} type="button" className={styles.audioButtonActive} onClick={speech.stop}>
+                              <IconStop size={12} /> {name}
+                            </button>
+                          ) : (
+                            <button
+                              key={v.id}
+                              type="button"
+                              className={styles.audioButton}
+                              title={`${v.label}${isDefault ? ' · voz padrão' : ''}`}
+                              aria-label={`Ouvir com a voz ${v.label}${isDefault ? ', padrão' : ''}`}
+                              onClick={() => void speech.play(m.id, isDefault ? undefined : v.id)}
+                            >
+                              <IconPlay size={12} /> {name}
+                              {isDefault && <span className={styles.defaultDot} aria-hidden="true" />}
+                            </button>
+                          );
+                        })}
+                      </span>
+                    )}
                     <span className={styles.meta}>{timingLine(m)}</span>
                   </div>
                 </div>

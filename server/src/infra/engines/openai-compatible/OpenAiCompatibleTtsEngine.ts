@@ -45,7 +45,7 @@ export class OpenAiCompatibleTtsEngine extends BaseTtsEngine {
       method: 'POST',
       headers: { 'content-type': 'application/json', ...(apiKey && { authorization: `Bearer ${apiKey}` }) },
       signal: AbortSignal.timeout(timeoutMs),
-      body: JSON.stringify({ model, input: request.text, voice, response_format: format, speed }),
+      body: JSON.stringify({ model, input: request.text, voice: request.voice ?? voice, response_format: format, speed }),
     });
     if (!res.ok) {
       const body = await res.text().catch(() => '');

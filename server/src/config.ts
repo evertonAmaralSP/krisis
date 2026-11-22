@@ -44,6 +44,8 @@ const EnvSchema = z.object({
   TTS_ENGINE: z.string().default('kokoro'),
   TTS_MODEL: z.string().default('kokoro'),
   TTS_VOICE: z.string().default('pf_dora'),
+  /** Vozes oferecidas para comparar na tela (separadas por vírgula). */
+  TTS_VOICES: z.string().default('pf_dora,pm_alex,pm_santa'),
   TTS_SPEED: z.coerce.number().min(0.5).max(2).default(1),
   TTS_TIMEOUT_MS: z.coerce.number().int().positive().default(30_000),
   KOKORO_BASE_URL: z.url().default('http://127.0.0.1:8880/v1'),
@@ -92,6 +94,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env) {
       engine: e.TTS_ENGINE,
       model: e.TTS_MODEL,
       voice: e.TTS_VOICE,
+      voices: e.TTS_VOICES.split(',').map((v) => v.trim()).filter(Boolean),
       speed: e.TTS_SPEED,
       timeoutMs: e.TTS_TIMEOUT_MS,
     },

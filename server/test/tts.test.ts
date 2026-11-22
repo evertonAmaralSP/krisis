@@ -117,6 +117,13 @@ describe('OpenAiCompatibleTtsEngine', () => {
     });
   });
 
+  it('usa a voz pedida no lugar da configurada', async () => {
+    const fetchFn = vi.fn(async () => new Response(new Uint8Array(silentWav())));
+    await new OpenAiCompatibleTtsEngine({ ...options, fetchFn }, logger()).synthesize({ text: 'Oi.', voice: 'pm_alex' });
+    const [, init] = fetchFn.mock.calls[0] as unknown as [string, RequestInit];
+    expect(JSON.parse(init.body as string).voice).toBe('pm_alex');
+  });
+
   it('serviço fora do ar vira EngineError com dica', async () => {
     const fetchFn = vi.fn(async () => {
       throw new TypeError('fetch failed');

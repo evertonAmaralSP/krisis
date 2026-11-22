@@ -24,6 +24,7 @@ export function createServices(deps: {
   llm: LlmResolver;
   stt: SttResolver;
   tts: TtsResolver;
+  voices?: { default: string; available: string[] };
   hasher: PasswordHasher;
   sessionTtlDays: number;
 }): Services {
@@ -33,6 +34,6 @@ export function createServices(deps: {
     interviews: new InterviewService(deps.repos, deps.llm, deps.stt, deps.tts, conversation),
     conversation,
     transcription: new TranscriptionService(deps.repos, deps.stt),
-    speech: new SpeechService(deps.repos, deps.tts),
+    speech: new SpeechService(deps.repos, deps.tts, deps.voices),
   };
 }

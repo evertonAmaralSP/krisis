@@ -202,6 +202,28 @@ describe('GET /api/v1/messages/{id}/speech', () => {
     expect(beyond.statusCode).toBe(404);
   });
 
+  it('lista as vozes e toca a mesma frase em outra voz sem mexer no tempo gravado', async () => {
+    const { c, cookie, interview, messageId } = await setup();
+    const voices = await c.app.inject({ method: 'GET', url: '/api/v1/speech/voices', headers: { cookie } });
+    expect(voices.json()).toEqual({
+      default: 'pf_dora',
+      voices: [
+        { id: 'pf_dora', label: 'Dora (feminina)' },
+        { id: 'pm_alex', label: 'Alex (masculina)' },
+        { id: 'pm_santa', label: 'Santa (masculina)' },
+      ],
+    });
+
+    const alt = await c.app.inject({ method: 'GET', url: `/api/v1/messages/${messageId}/speech?part=0&voice=pm_alex`, headers: { cookie } });
+    expect(alt.statusCode).toBe(200);
+    expect(c.tts.calls.at(-1)).toEqual({ text: 'Interessante.', voice: 'pm_alex' });
+    const after = await c.app.inject({ method: 'GET', url: `/api/v1/interviews/${interview.id}`, headers: { cookie } });
+    expect(after.json().messages[0].timings.ttsMs).toBeNull(); // comparação não conta como a espera real
+
+    const bad = await c.app.inject({ method: 'GET', url: `/api/v1/messages/${messageId}/speech?voice=xx_nada`, headers: { cookie } });
+    expect(bad.statusCode).toBe(400);
+  });
+
   it('fala do candidato não tem voz; mensagem inexistente ou sem sessão não passa', async () => {
     const { c, cookie, interview } = await setup();
     const turn = await c.app.inject({

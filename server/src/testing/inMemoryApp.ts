@@ -31,6 +31,7 @@ export async function buildInMemoryApp(
     llm: new CachedEngineResolver(() => llm, 'fake'),
     stt: new CachedEngineResolver(() => stt, 'fake'),
     tts: new CachedEngineResolver(() => tts, ttsOptions.disabled ? 'none' : 'fake'),
+    voices: { default: 'pf_dora', available: ['pf_dora', 'pm_alex', 'pm_santa'] },
     hasher,
     sessionTtlDays: 30,
   });

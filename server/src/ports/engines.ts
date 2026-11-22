@@ -48,6 +48,8 @@ export interface SttEngine {
 
 export interface TtsRequest {
   text: string;
+  /** Opcional: outra voz do mesmo motor; sem ela, a voz configurada. */
+  voice?: string;
 }
 
 export interface TtsResult {

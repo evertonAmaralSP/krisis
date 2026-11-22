@@ -177,6 +177,20 @@ export const v1Routes: FastifyPluginAsyncZod<V1Options> = async (app, { services
     );
 
     s.get(
+      '/speech/voices',
+      {
+        schema: {
+          tags: ['interviews'],
+          summary: 'Vozes disponíveis para o entrevistador',
+          description: 'A voz padrão (TTS_VOICE) e as que podem ser comparadas com `?voice=` em GET /messages/{id}/speech.',
+          security: [{ cookieAuth: [] }],
+          response: { 200: v1.VoiceList, ...errors(401) },
+        },
+      },
+      async () => services.speech.listVoices(),
+    );
+
+    s.get(
       '/messages/:id/speech',
       {
         schema: {
@@ -191,7 +205,12 @@ export const v1Routes: FastifyPluginAsyncZod<V1Options> = async (app, { services
         },
       },
       async (request, reply) => {
-        const out = await services.speech.speak(currentUser(request).id, request.params.id, request.query.part);
+        const out = await services.speech.speak(
+          currentUser(request).id,
+          request.params.id,
+          request.query.part,
+          request.query.voice,
+        );
         // Corpo binário: fora do serializador JSON tipado pelo contrato.
         return (reply as FastifyReply)
           .header('content-type', out.mimeType)

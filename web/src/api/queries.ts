@@ -71,3 +71,7 @@ export function appendTurn(
     old ? { ...old, messages: [...old.messages, turn.candidateMessage, turn.interviewerMessage] } : old,
   );
 }
+
+export function useVoices() {
+  return useQuery({ queryKey: ['speech', 'voices'], queryFn: api.voices, staleTime: Infinity });
+}
