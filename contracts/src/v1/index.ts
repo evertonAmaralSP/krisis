@@ -247,3 +247,49 @@ export const SendMessageResponse = z
   })
   .meta({ id: 'SendMessageResponse' });
 export type SendMessageResponse = z.infer<typeof SendMessageResponse>;
+
+// ---------- Feedback ----------
+
+export const FeedbackSuggestion = z
+  .object({
+    question: z.string(),
+    answer: z.string(),
+    suggestion: z.string(),
+  })
+  .meta({ id: 'FeedbackSuggestion' });
+export type FeedbackSuggestion = z.infer<typeof FeedbackSuggestion>;
+
+/** O que o modelo escreve. */
+export const FeedbackContent = z
+  .object({
+    summary: z.string().min(1),
+    // Podem vir vazias (ex.: uma única resposta "não sei"); a tela trata.
+    strengths: z.array(z.string().min(1)),
+    improvements: z.array(z.string().min(1)),
+    suggestions: z.array(FeedbackSuggestion),
+  })
+  .meta({ id: 'FeedbackContent' });
+export type FeedbackContent = z.infer<typeof FeedbackContent>;
+
+export const TimingStage = z.enum(['stt', 'llm', 'tts', 'text']).meta({ id: 'TimingStage' });
+export type TimingStage = z.infer<typeof TimingStage>;
+
+/** Média e pior caso de uma etapa na entrevista, calculados das mensagens. */
+export const TimingStat = z
+  .object({
+    stage: TimingStage,
+    count: z.number().int().nonnegative(),
+    avgMs: z.number().int().nullable(),
+    maxMs: z.number().int().nullable(),
+  })
+  .meta({ id: 'TimingStat' });
+export type TimingStat = z.infer<typeof TimingStat>;
+
+export const Feedback = FeedbackContent.extend({
+  interviewId: z.string(),
+  model: z.string(),
+  llmMs: z.number().int(),
+  createdAt: z.iso.datetime(),
+  timings: z.array(TimingStat),
+}).meta({ id: 'Feedback' });
+export type Feedback = z.infer<typeof Feedback>;

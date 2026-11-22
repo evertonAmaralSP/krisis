@@ -90,12 +90,32 @@ const m002_voz_preferida: Migration = {
   },
 };
 
+const m003_feedback: Migration = {
+  async up(db: Kysely<any>) {
+    await db.schema
+      .createTable('feedback')
+      .addColumn('interview_id', 'text', (c) => c.primaryKey().references('interviews.id').onDelete('cascade'))
+      .addColumn('summary', 'text', (c) => c.notNull())
+      .addColumn('strengths', 'text', (c) => c.notNull())
+      .addColumn('improvements', 'text', (c) => c.notNull())
+      .addColumn('suggestions', 'text', (c) => c.notNull())
+      .addColumn('model', 'text', (c) => c.notNull())
+      .addColumn('llm_ms', 'integer', (c) => c.notNull())
+      .addColumn('created_at', 'text', (c) => c.notNull())
+      .execute();
+  },
+  async down(db: Kysely<any>) {
+    await db.schema.dropTable('feedback').execute();
+  },
+};
+
 /** Migrations embutidas no código: funcionam igual em servidor e em função serverless. */
 export const migrationProvider: MigrationProvider = {
   async getMigrations() {
     return {
       '001_inicial': m001_inicial,
       '002_voz_preferida': m002_voz_preferida,
+      '003_feedback': m003_feedback,
     };
   },
 };

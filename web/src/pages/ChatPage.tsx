@@ -3,7 +3,8 @@ import { useQueryClient } from '@tanstack/react-query';
 import type { v1 } from '@krisis/contracts';
 import { Link, useLocation, useNavigate, useParams } from 'react-router';
 import { ApiError } from '../api/client.ts';
-import { keys, useInterview, useVoices } from '../api/queries.ts';
+import { keys, useFinishInterview, useInterview, useVoices } from '../api/queries.ts';
+import { ConfirmDialog } from '../components/ConfirmDialog.tsx';
 import logo from '../assets/krisis-logo-128.png';
 import { IconMic, IconPlay, IconSend, IconStop } from '../components/icons.tsx';
 import { StatusPill } from '../chat/StatusPill.tsx';
@@ -45,6 +46,8 @@ export function ChatPage() {
   const { stop: stopSpeech } = speech;
   useEffect(() => stopSpeech, [id, stopSpeech]);
   const [draft, setDraft] = useState('');
+  const finish = useFinishInterview();
+  const [confirmFinish, setConfirmFinish] = useState(false);
   const endRef = useRef<HTMLDivElement>(null);
 
   const messageCount = interview.data?.messages.length ?? 0;
@@ -85,6 +88,7 @@ export function ChatPage() {
   const data = interview.data;
   const finished = data.status === 'finished';
   const busy = state === 'transcrevendo' || state === 'pensando';
+  const hasAnswers = data.messages.some((m) => m.author === 'candidate');
   const recording = state === 'gravando';
   // Quem decide se há voz é o servidor (404 TTS_DISABLED desliga os controles).
   const voiceOn = !speech.disabled;
@@ -133,7 +137,57 @@ export function ChatPage() {
             </span>
           </div>
         </div>
+        <div className={styles.headerActions}>
+          {finished ? (
+            <Link to={`/entrevistas/${data.id}/feedback`} className="btn-primary">
+              Ver feedback
+            </Link>
+          ) : (
+            <button
+              type="button"
+              className="btn-secondary"
+              disabled={!hasAnswers || busy || recording}
+              title={hasAnswers ? undefined : 'Responda pelo menos uma pergunta antes de encerrar.'}
+              onClick={() => {
+                finish.reset();
+                setConfirmFinish(true);
+              }}
+            >
+              Encerrar e ver feedback
+            </button>
+          )}
+        </div>
       </header>
+
+      <ConfirmDialog
+        open={confirmFinish}
+        title="Encerrar a entrevista?"
+        confirmLabel="Encerrar e gerar feedback"
+        busyLabel="Gerando feedback…"
+        tone="primary"
+        busy={finish.isPending}
+        error={finish.isError ? finish.error.message : null}
+        onCancel={() => setConfirmFinish(false)}
+        onConfirm={() => {
+          speech.stop();
+          finish.mutate(data.id, {
+            onSuccess: () => {
+              setConfirmFinish(false);
+              navigate(`/entrevistas/${data.id}/feedback`);
+            },
+            onError: (err) => {
+              // Encerrada em outra aba: recarrega a entrevista (a tela passa a mostrar "Ver feedback").
+              if (err instanceof ApiError && err.status === 409 && hasAnswers) {
+                setConfirmFinish(false);
+                void qc.invalidateQueries({ queryKey: keys.interview(data.id) });
+              }
+            },
+          });
+        }}
+      >
+        O feedback é gerado a partir da transcrição completa e leva alguns segundos. Depois de encerrada, a entrevista
+        fica só para leitura; para treinar de novo, crie outra.
+      </ConfirmDialog>
 
       <section className={styles.messages} aria-label="Conversa">
         <div className={styles.messagesInner}>
@@ -231,6 +285,16 @@ export function ChatPage() {
         </div>
       </section>
 
+      {finished ? (
+        <footer className={styles.composer}>
+          <div className={styles.finishedBar}>
+            <span>Entrevista encerrada{data.finishedAt ? ` em ${new Date(data.finishedAt).toLocaleDateString('pt-BR')}` : ''}.</span>
+            <Link to={`/entrevistas/${data.id}/feedback`} className="btn-primary">
+              Ver feedback
+            </Link>
+          </div>
+        </footer>
+      ) : (
       <footer className={styles.composer}>
         <div className={styles.composerInner}>
           {speech.error && (
@@ -293,6 +357,7 @@ export function ChatPage() {
           </div>
         </div>
       </footer>
+      )}
     </div>
   );
 }

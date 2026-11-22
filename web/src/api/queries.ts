@@ -106,3 +106,19 @@ export function useDeleteInterview() {
     },
   });
 }
+
+export function useFeedback(id: string) {
+  return useQuery({ queryKey: ['feedback', id], queryFn: () => api.feedback(id) });
+}
+
+export function useFinishInterview() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: api.finishInterview,
+    onSuccess: (feedback, id) => {
+      qc.setQueryData(['feedback', id], feedback);
+      void qc.invalidateQueries({ queryKey: keys.interview(id) });
+      void qc.invalidateQueries({ queryKey: keys.interviews, exact: true });
+    },
+  });
+}

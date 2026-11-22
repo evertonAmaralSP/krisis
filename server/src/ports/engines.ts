@@ -12,6 +12,13 @@ export interface LlmRequest {
   messages: ChatMessage[];
   maxTokens?: number;
   temperature?: number;
+  /** Outro modelo do mesmo fornecedor só para este pedido (ex.: o do feedback). */
+  model?: string;
+  reasoningEffort?: 'low' | 'medium' | 'high';
+  /** Tempo máximo só para este pedido (ex.: o feedback, que é mais longo). */
+  timeoutMs?: number;
+  /** Saída estruturada: o fornecedor garante JSON neste schema (modo strict). */
+  jsonSchema?: { name: string; schema: Record<string, unknown> };
 }
 
 export interface LlmResult {

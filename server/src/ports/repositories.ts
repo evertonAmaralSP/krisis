@@ -2,7 +2,7 @@
  * Portas de persistência. Os serviços conhecem só estas interfaces;
  * cada DataSource entrega uma implementação de todas elas.
  */
-import type { Interview, InterviewConfig, EngineNames, Message, Session, User } from '../domain/types.ts';
+import type { Feedback, Interview, InterviewConfig, EngineNames, Message, Session, User } from '../domain/types.ts';
 
 export interface UserRepository {
   count(): Promise<number>;
@@ -35,8 +35,17 @@ export interface MessageRepository {
   /** A mensagem e a entrevista dela, só se a entrevista for do usuário. */
   findForUser(messageId: string, userId: string): Promise<{ message: Message; interview: Interview } | null>;
   setTtsMs(messageId: string, ms: number): Promise<void>;
-  /** Grava várias mensagens de forma atômica, na ordem dada. */
+  /** Grava várias mensagens de forma atômica, na ordem dada. Recusa (409) se a entrevista já foi encerrada. */
   createMany(messages: NewMessage[]): Promise<Message[]>;
+}
+
+export interface FeedbackRepository {
+  get(interviewId: string): Promise<Feedback | null>;
+  /**
+   * Grava o feedback E marca a entrevista como encerrada, de forma atômica.
+   * false se a entrevista já não estava aberta (outro pedido encerrou antes).
+   */
+  saveAndFinish(feedback: Feedback): Promise<boolean>;
 }
 
 /** Conjunto de repositórios que um DataSource entrega. */
@@ -45,4 +54,5 @@ export interface Repositories {
   sessions: SessionRepository;
   interviews: InterviewRepository;
   messages: MessageRepository;
+  feedback: FeedbackRepository;
 }

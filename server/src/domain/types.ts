@@ -65,3 +65,20 @@ export interface Message {
   timings: Timings;
   createdAt: Date;
 }
+
+export interface FeedbackSuggestion {
+  question: string;
+  answer: string;
+  suggestion: string;
+}
+
+export interface Feedback {
+  interviewId: string;
+  summary: string;
+  strengths: string[];
+  improvements: string[];
+  suggestions: FeedbackSuggestion[];
+  model: string;
+  llmMs: number;
+  createdAt: Date;
+}

@@ -600,6 +600,174 @@
           "interviewerMessage"
         ]
       },
+      "FeedbackSuggestionInput": {
+        "type": "object",
+        "properties": {
+          "question": {
+            "type": "string"
+          },
+          "answer": {
+            "type": "string"
+          },
+          "suggestion": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "question",
+          "answer",
+          "suggestion"
+        ]
+      },
+      "FeedbackContentInput": {
+        "type": "object",
+        "properties": {
+          "summary": {
+            "type": "string",
+            "minLength": 1
+          },
+          "strengths": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "improvements": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "suggestions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FeedbackSuggestionInput"
+            }
+          }
+        },
+        "required": [
+          "summary",
+          "strengths",
+          "improvements",
+          "suggestions"
+        ]
+      },
+      "TimingStageInput": {
+        "type": "string",
+        "enum": [
+          "stt",
+          "llm",
+          "tts",
+          "text"
+        ]
+      },
+      "TimingStatInput": {
+        "type": "object",
+        "properties": {
+          "stage": {
+            "$ref": "#/components/schemas/TimingStageInput"
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "avgMs": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "maxMs": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "stage",
+          "count",
+          "avgMs",
+          "maxMs"
+        ]
+      },
+      "FeedbackInput": {
+        "type": "object",
+        "properties": {
+          "summary": {
+            "type": "string",
+            "minLength": 1
+          },
+          "strengths": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "improvements": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "suggestions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FeedbackSuggestionInput"
+            }
+          },
+          "interviewId": {
+            "type": "string"
+          },
+          "model": {
+            "type": "string"
+          },
+          "llmMs": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+          },
+          "timings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TimingStatInput"
+            }
+          }
+        },
+        "required": [
+          "summary",
+          "strengths",
+          "improvements",
+          "suggestions",
+          "interviewId",
+          "model",
+          "llmMs",
+          "createdAt",
+          "timings"
+        ]
+      },
       "ErrorBody": {
         "type": "object",
         "properties": {
@@ -1204,6 +1372,178 @@
         "required": [
           "candidateMessage",
           "interviewerMessage"
+        ],
+        "additionalProperties": false
+      },
+      "FeedbackSuggestion": {
+        "type": "object",
+        "properties": {
+          "question": {
+            "type": "string"
+          },
+          "answer": {
+            "type": "string"
+          },
+          "suggestion": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "question",
+          "answer",
+          "suggestion"
+        ],
+        "additionalProperties": false
+      },
+      "FeedbackContent": {
+        "type": "object",
+        "properties": {
+          "summary": {
+            "type": "string",
+            "minLength": 1
+          },
+          "strengths": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "improvements": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "suggestions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FeedbackSuggestion"
+            }
+          }
+        },
+        "required": [
+          "summary",
+          "strengths",
+          "improvements",
+          "suggestions"
+        ],
+        "additionalProperties": false
+      },
+      "TimingStage": {
+        "type": "string",
+        "enum": [
+          "stt",
+          "llm",
+          "tts",
+          "text"
+        ]
+      },
+      "TimingStat": {
+        "type": "object",
+        "properties": {
+          "stage": {
+            "$ref": "#/components/schemas/TimingStage"
+          },
+          "count": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "avgMs": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "maxMs": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "stage",
+          "count",
+          "avgMs",
+          "maxMs"
+        ],
+        "additionalProperties": false
+      },
+      "Feedback": {
+        "type": "object",
+        "properties": {
+          "summary": {
+            "type": "string",
+            "minLength": 1
+          },
+          "strengths": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "improvements": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "suggestions": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FeedbackSuggestion"
+            }
+          },
+          "interviewId": {
+            "type": "string"
+          },
+          "model": {
+            "type": "string"
+          },
+          "llmMs": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "createdAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+          },
+          "timings": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/TimingStat"
+            }
+          }
+        },
+        "required": [
+          "summary",
+          "strengths",
+          "improvements",
+          "suggestions",
+          "interviewId",
+          "model",
+          "llmMs",
+          "createdAt",
+          "timings"
         ],
         "additionalProperties": false
       }
@@ -1820,6 +2160,140 @@
             }
           },
           "403": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/interviews/{id}/finish": {
+      "post": {
+        "summary": "Encerrar a entrevista e gerar o feedback",
+        "tags": [
+          "interviews"
+        ],
+        "description": "Gera o feedback a partir da transcrição completa e só então marca a entrevista como encerrada. Se o modelo falhar, nada muda (502) e dá para tentar de novo. 409 se já estiver encerrada ou sem nenhuma resposta.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Feedback"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "502": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/interviews/{id}/feedback": {
+      "get": {
+        "summary": "Feedback de uma entrevista encerrada",
+        "tags": [
+          "interviews"
+        ],
+        "description": "Inclui a tabela de tempos por etapa, calculada das mensagens.",
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "in": "path",
+            "name": "id",
+            "required": true
+          }
+        ],
+        "security": [
+          {
+            "cookieAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Feedback"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Default Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorBody"
+                }
+              }
+            }
+          },
+          "404": {
             "description": "Default Response",
             "content": {
               "application/json": {

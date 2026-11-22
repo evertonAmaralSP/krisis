@@ -1,6 +1,7 @@
 /** Domínio → DTOs do contrato v1. Datas viram ISO-8601. */
 import type { v1 } from '@krisis/contracts';
 import type { Interview, Message, User } from '../../domain/types.ts';
+import type { FeedbackView } from '../../application/FeedbackService.ts';
 
 export const toUserDto = (u: User): v1.User => ({ id: u.id, name: u.name, email: u.email });
 export const toAccountDto = (u: User): v1.Account => ({ ...toUserDto(u), ttsVoice: u.ttsVoice });
@@ -33,4 +34,16 @@ export const toInterviewDto = (i: Interview & { messages: Message[] }): v1.Inter
   resume: i.resume,
   engines: i.engines,
   messages: i.messages.map(toMessageDto),
+});
+
+export const toFeedbackDto = (f: FeedbackView): v1.Feedback => ({
+  interviewId: f.interviewId,
+  summary: f.summary,
+  strengths: f.strengths,
+  improvements: f.improvements,
+  suggestions: f.suggestions,
+  model: f.model,
+  llmMs: f.llmMs,
+  createdAt: f.createdAt.toISOString(),
+  timings: f.timings,
 });

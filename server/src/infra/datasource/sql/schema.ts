@@ -51,9 +51,22 @@ export interface MessagesTable {
   created_at: string;
 }
 
+export interface FeedbackTable {
+  interview_id: string;
+  summary: string;
+  /** Listas guardadas como JSON em texto (portável SQLite/Postgres). */
+  strengths: string;
+  improvements: string;
+  suggestions: string;
+  model: string;
+  llm_ms: number;
+  created_at: string;
+}
+
 export interface Database {
   users: UsersTable;
   sessions: SessionsTable;
   interviews: InterviewsTable;
   messages: MessagesTable;
+  feedback: FeedbackTable;
 }

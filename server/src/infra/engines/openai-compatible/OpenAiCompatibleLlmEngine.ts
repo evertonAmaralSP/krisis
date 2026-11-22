@@ -1,3 +1,4 @@
+import { EngineError } from '../../../domain/errors.ts';
 import type { EngineLogger, LlmRequest } from '../../../ports/engines.ts';
 import { BaseLlmEngine, type LlmCompletion } from '../base/BaseLlmEngine.ts';
 
@@ -33,7 +34,10 @@ export class OpenAiCompatibleLlmEngine extends BaseLlmEngine {
   }
 
   protected async doComplete(request: LlmRequest): Promise<LlmCompletion> {
-    const { baseUrl, apiKey, model, maxTokens, timeoutMs, reasoningEffort } = this.options;
+    const { baseUrl, apiKey, maxTokens } = this.options;
+    const timeoutMs = request.timeoutMs ?? this.options.timeoutMs;
+    const model = request.model ?? this.options.model;
+    const reasoningEffort = request.reasoningEffort ?? this.options.reasoningEffort;
     const res = await this.fetchFn(`${baseUrl.replace(/\/$/, '')}/chat/completions`, {
       method: 'POST',
       headers: { 'content-type': 'application/json', authorization: `Bearer ${apiKey}` },
@@ -44,6 +48,12 @@ export class OpenAiCompatibleLlmEngine extends BaseLlmEngine {
         max_completion_tokens: request.maxTokens ?? maxTokens,
         ...(request.temperature !== undefined && { temperature: request.temperature }),
         ...(reasoningEffort && { reasoning_effort: reasoningEffort }),
+        ...(request.jsonSchema && {
+          response_format: {
+            type: 'json_schema',
+            json_schema: { name: request.jsonSchema.name, strict: true, schema: request.jsonSchema.schema },
+          },
+        }),
       }),
     });
     if (!res.ok) {
@@ -55,6 +65,14 @@ export class OpenAiCompatibleLlmEngine extends BaseLlmEngine {
       choices?: { message?: { content?: string | null }; finish_reason?: string }[];
     };
     const choice = data.choices?.[0];
+    if (choice?.finish_reason === 'length') {
+      // O raciocínio conta no limite: a resposta foi cortada e não adianta repetir igual.
+      throw new EngineError(
+        this.name,
+        'llm',
+        'A resposta do modelo foi cortada pelo limite de tokens. Aumente o limite (LLM_MAX_TOKENS ou FEEDBACK_MAX_TOKENS).',
+      );
+    }
     return { text: choice?.message?.content ?? '', model: data.model ?? model };
   }
 }
