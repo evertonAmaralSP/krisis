@@ -9,6 +9,8 @@ interface Props {
   /** Texto do botão enquanto a ação roda. */
   busyLabel?: string;
   busy?: boolean;
+  /** danger (padrão) para apagar; primary para confirmar uma ação comum. */
+  tone?: 'danger' | 'primary';
   error?: string | null;
   onConfirm: () => void;
   onCancel: () => void;
@@ -25,6 +27,7 @@ export function ConfirmDialog({
   confirmLabel,
   busyLabel = 'Aguarde…',
   busy,
+  tone = 'danger',
   error,
   onConfirm,
   onCancel,
@@ -71,7 +74,7 @@ export function ConfirmDialog({
           <button ref={cancelRef} type="button" className="btn-secondary" onClick={onCancel} disabled={busy}>
             Cancelar
           </button>
-          <button type="button" className={styles.danger} onClick={onConfirm} disabled={busy}>
+          <button type="button" className={tone === 'danger' ? styles.danger : 'btn-primary'} onClick={onConfirm} disabled={busy}>
             {busy ? busyLabel : confirmLabel}
           </button>
         </div>

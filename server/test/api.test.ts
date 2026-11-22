@@ -371,3 +371,137 @@ describe('Conta, voz preferida e histórico (etapa 4)', () => {
     expect((await c.app.inject({ method: 'DELETE', url: `/api/v1/interviews/${interview.id}`, headers: { cookie } })).statusCode).toBe(404);
   });
 });
+
+describe('Encerrar e feedback (etapa 5)', () => {
+  type Ctx = Awaited<ReturnType<typeof buildInMemoryApp>>;
+  let ctx: Ctx | null = null;
+  afterEach(async () => {
+    await ctx?.close();
+    ctx = null;
+  });
+
+  const FEEDBACK = {
+    summary: 'Boa clareza técnica, mas faltaram números.',
+    strengths: ['Explicou o motivo das decisões.'],
+    improvements: ['Trazer métricas de resultado.'],
+    suggestions: [{ question: 'Como mediu?', answer: 'Medimos a latência.', suggestion: 'Diga antes e depois em números.' }],
+  };
+
+  /** Motor falso: conversa normal, e o JSON do feedback quando o pedido traz o schema. */
+  async function setup(feedbackReply: string | (() => string) = JSON.stringify(FEEDBACK)) {
+    ctx = await buildInMemoryApp({
+      replies: (req) => {
+        if (req.jsonSchema) return typeof feedbackReply === 'function' ? feedbackReply() : feedbackReply;
+        return 'Pergunta do entrevistador?';
+      },
+    });
+    const login = await ctx.app.inject({
+      method: 'POST',
+      url: '/api/v1/auth/login',
+      payload: { email: TEST_USER.email, password: TEST_USER.password },
+    });
+    const cookie = `krisis_sid=${login.cookies.find((k) => k.name === 'krisis_sid')!.value}`;
+    const interview = (
+      await ctx.app.inject({
+        method: 'POST',
+        url: '/api/v1/interviews',
+        headers: { cookie },
+        payload: { role: 'Engenheiro de dados', company: 'X', level: 'senior', kind: 'tecnica' },
+      })
+    ).json();
+    const answer = (content: string, extra: Record<string, unknown> = {}) =>
+      ctx!.app.inject({
+        method: 'POST',
+        url: `/api/v1/interviews/${interview.id}/messages`,
+        headers: { cookie },
+        payload: { content, ...extra },
+      });
+    return { c: ctx, cookie, interview, answer };
+  }
+
+  it('sem nenhuma resposta não encerra (409)', async () => {
+    const { c, cookie, interview } = await setup();
+    const res = await c.app.inject({ method: 'POST', url: `/api/v1/interviews/${interview.id}/finish`, headers: { cookie } });
+    expect(res.statusCode).toBe(409);
+  });
+
+  it('gera o feedback com a transcrição, encerra a entrevista e bloqueia novas falas', async () => {
+    const { c, cookie, interview, answer } = await setup();
+    await answer('Migrei o pipeline para streaming.', { inputMode: 'voice', audioSeconds: 12, sttMs: 500 });
+
+    const res = await c.app.inject({ method: 'POST', url: `/api/v1/interviews/${interview.id}/finish`, headers: { cookie } });
+    expect(res.statusCode).toBe(200);
+    const fb = res.json();
+    expect(fb).toMatchObject({ interviewId: interview.id, ...FEEDBACK, model: 'fake-1' });
+
+    // O pedido ao modelo levou o schema e a transcrição completa, como dado.
+    const req = c.llm.calls.at(-1)!;
+    expect(req.jsonSchema?.name).toBe('feedback_entrevista');
+    expect(req.messages[1]!.content).toContain('[1] RESPOSTA DO CANDIDATO: Migrei o pipeline para streaming.');
+    expect(req.messages[1]!.content).toContain('<transcricao>');
+
+    // Tempos: transcrição 500 ms; até o texto = 500 + tempo do modelo.
+    const stt = fb.timings.find((t: { stage: string }) => t.stage === 'stt');
+    expect(stt).toMatchObject({ count: 1, avgMs: 500, maxMs: 500 });
+    expect(fb.timings.find((t: { stage: string }) => t.stage === 'text').count).toBe(1);
+
+    const get = await c.app.inject({ method: 'GET', url: `/api/v1/interviews/${interview.id}/feedback`, headers: { cookie } });
+    expect(get.json().summary).toBe(FEEDBACK.summary);
+    const full = await c.app.inject({ method: 'GET', url: `/api/v1/interviews/${interview.id}`, headers: { cookie } });
+    expect(full.json()).toMatchObject({ status: 'finished' });
+    expect(full.json().finishedAt).toBeTypeOf('string');
+
+    expect((await answer('Mais uma resposta.')).statusCode).toBe(409);
+    expect((await c.app.inject({ method: 'POST', url: `/api/v1/interviews/${interview.id}/finish`, headers: { cookie } })).statusCode).toBe(409);
+  });
+
+  it('dois pedidos de encerrar ao mesmo tempo: um encerra, o outro recebe 409 (não 500)', async () => {
+    const { c, cookie, interview, answer } = await setup();
+    await answer('Uma resposta.');
+    const url = `/api/v1/interviews/${interview.id}/finish`;
+    const [a, b] = await Promise.all([
+      c.app.inject({ method: 'POST', url, headers: { cookie } }),
+      c.app.inject({ method: 'POST', url, headers: { cookie } }),
+    ]);
+    expect([a.statusCode, b.statusCode].sort()).toEqual([200, 409]);
+  });
+
+  it('não grava falas numa entrevista que já foi encerrada (turno atrasado)', async () => {
+    const { c, cookie, interview, answer } = await setup();
+    await answer('Uma resposta.');
+    await c.app.inject({ method: 'POST', url: `/api/v1/interviews/${interview.id}/finish`, headers: { cookie } });
+    const late = c.dataSource.repositories.messages.createMany([
+      { interviewId: interview.id, author: 'candidate', content: 'atrasada', inputMode: 'text', audioSeconds: null, timings: { sttMs: null, llmMs: null, ttsMs: null } },
+    ]);
+    await expect(late).rejects.toMatchObject({ code: 'CONFLICT' });
+  });
+
+  it('aceita listas vazias de pontos fortes/a melhorar', async () => {
+    const { c, cookie, interview, answer } = await setup(JSON.stringify({ ...FEEDBACK, strengths: [], suggestions: [] }));
+    await answer('Não sei.');
+    const res = await c.app.inject({ method: 'POST', url: `/api/v1/interviews/${interview.id}/finish`, headers: { cookie } });
+    expect(res.statusCode).toBe(200);
+    expect(res.json().strengths).toEqual([]);
+  });
+
+  it('com o motor falso sem respostas programadas (LLM_ENGINE=fake) o encerramento funciona', async () => {
+    ctx = await buildInMemoryApp();
+    const login = await ctx.app.inject({ method: 'POST', url: '/api/v1/auth/login', payload: { email: TEST_USER.email, password: TEST_USER.password } });
+    const cookie = `krisis_sid=${login.cookies.find((k) => k.name === 'krisis_sid')!.value}`;
+    const i = (await ctx.app.inject({ method: 'POST', url: '/api/v1/interviews', headers: { cookie }, payload: { role: 'Dev', company: 'X', level: 'pleno', kind: 'mista' } })).json();
+    await ctx.app.inject({ method: 'POST', url: `/api/v1/interviews/${i.id}/messages`, headers: { cookie }, payload: { content: 'Oi.' } });
+    const res = await ctx.app.inject({ method: 'POST', url: `/api/v1/interviews/${i.id}/finish`, headers: { cookie } });
+    expect(res.statusCode).toBe(200);
+  });
+
+  it('feedback fora do formato vira 502 e a entrevista continua aberta', async () => {
+    const { c, cookie, interview, answer } = await setup('{"resumo": "faltou tudo"}');
+    await answer('Uma resposta.');
+    const res = await c.app.inject({ method: 'POST', url: `/api/v1/interviews/${interview.id}/finish`, headers: { cookie } });
+    expect(res.statusCode).toBe(502);
+    expect(res.json().error.code).toBe('ENGINE_FAILURE');
+    const full = await c.app.inject({ method: 'GET', url: `/api/v1/interviews/${interview.id}`, headers: { cookie } });
+    expect(full.json().status).toBe('active');
+    expect((await c.app.inject({ method: 'GET', url: `/api/v1/interviews/${interview.id}/feedback`, headers: { cookie } })).statusCode).toBe(404);
+  });
+});

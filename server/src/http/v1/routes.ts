@@ -9,7 +9,7 @@ import { z } from 'zod';
 import type { Services } from '../../container.ts';
 import { AppError } from '../../domain/errors.ts';
 import { currentUser, requireSession, SESSION_COOKIE } from './session.ts';
-import { toAccountDto, toInterviewDto, toInterviewSummaryDto, toMessageDto, toUserDto } from './mappers.ts';
+import { toAccountDto, toFeedbackDto, toInterviewDto, toInterviewSummaryDto, toMessageDto, toUserDto } from './mappers.ts';
 
 export interface V1Options {
   services: Services;
@@ -227,6 +227,37 @@ export const v1Routes: FastifyPluginAsyncZod<V1Options> = async (app, { services
         );
         return reply.code(204).send(null);
       },
+    );
+
+    s.post(
+      '/interviews/:id/finish',
+      {
+        schema: {
+          tags: ['interviews'],
+          summary: 'Encerrar a entrevista e gerar o feedback',
+          description:
+            'Gera o feedback a partir da transcrição completa e só então marca a entrevista como encerrada. Se o modelo falhar, nada muda (502) e dá para tentar de novo. 409 se já estiver encerrada ou sem nenhuma resposta.',
+          security: [{ cookieAuth: [] }],
+          params: v1.IdParams,
+          response: { 200: v1.Feedback, ...errors(401, 404, 409, 502) },
+        },
+      },
+      async (request) => toFeedbackDto(await services.feedback.finish(currentUser(request).id, request.params.id)),
+    );
+
+    s.get(
+      '/interviews/:id/feedback',
+      {
+        schema: {
+          tags: ['interviews'],
+          summary: 'Feedback de uma entrevista encerrada',
+          description: 'Inclui a tabela de tempos por etapa, calculada das mensagens.',
+          security: [{ cookieAuth: [] }],
+          params: v1.IdParams,
+          response: { 200: v1.Feedback, ...errors(401, 404) },
+        },
+      },
+      async (request) => toFeedbackDto(await services.feedback.get(currentUser(request).id, request.params.id)),
     );
 
     s.delete(

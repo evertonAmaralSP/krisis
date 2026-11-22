@@ -151,7 +151,7 @@ interviews(id, user_id, title, role, company, level, kind, job_description, resu
            stt_engine, llm_engine, tts_engine, status, created_at, finished_at)
 messages(id, interview_id, author, content, input_mode, audio_seconds,
          stt_ms, llm_ms, tts_ms, created_at)
-feedback(interview_id PK, summary, strengths, improvements, suggestions, llm_ms, created_at)
+feedback(interview_id PK, summary, strengths, improvements, suggestions, model, llm_ms, created_at)
 ```
 
 ### Frontend
@@ -178,7 +178,7 @@ A marca é **KRISIS** (do próprio autor). A fonte da verdade é `docs/marca/KRI
 2. Gravação no navegador e transcrição. (Entregue: Groq `whisper-large-v3-turbo` via endpoint compatível com a OpenAI, áudio WebM/Opus sem conversão, resposta `json` e duração medida no navegador, `language=pt` + contexto da vaga no `prompt`, limite de 5 min/10 MB, silêncio barrado no navegador pelo nível do som e alucinações conhecidas do Whisper barradas no servidor com 422. Medido: ~1,3 s do "Terminei de falar" ao texto do entrevistador numa resposta de 15 s.)
 3. Voz com Kokoro e reprodução no navegador. (Entregue: serviço Python próprio em `tts-kokoro/` no formato `/v1/audio/speech` da OpenAI, Kokoro 0.9.4 com PyTorch de CPU, pesos num commit fixo do Hugging Face (10/04/2025) conferidos por SHA256 e carregados offline com `weights_only`; síntese numa thread dedicada com 8 threads de CPU; resposta dividida em trechos (primeiro curto em pausa natural, máximo de 70 caracteres) tocados em sequência com pré-busca; `GET /messages/{id}/speech?part=N`; `TTS_ENGINE=none` desliga a voz. Medido: texto do entrevistador em ~1–1,3 s e voz começando em ~2–3 s depois do "Terminei de falar", conforme o tamanho da primeira frase; sem pausas entre trechos, exceto ~1 s depois de um primeiro trecho muito curto, como "Certo.".)
 4. Formulário de nova entrevista, histórico e persistência; conta em Configurações (nome, e-mail, troca de senha). (Entregue: `GET/PATCH /account`, `POST /account/password` (encerra as outras sessões), `DELETE /interviews/{id}` com confirmação em `<dialog>`, voz preferida no banco (`users.tts_voice`, migration 002) com amostra em `GET /speech/voices/{voice}/sample`; senha errada responde 403 `INVALID_PASSWORD`.)
-5. Feedback final.
+5. Feedback final. (Entregue: `POST /interviews/{id}/finish` gera e só então grava feedback + entrevista encerrada, numa transação; `GET /interviews/{id}/feedback` com tabela de tempos calculada das mensagens; saída estruturada `json_schema` strict no Groq com `FEEDBACK_MODEL=openai/gpt-oss-120b` e raciocínio `medium` (~1,5–2 s); transcrição em pares numerados para o modelo não trocar pergunta e resposta; números não ditos pelo candidato viram marcadores; migration 003 cria `feedback`; entrevista encerrada fica só para leitura.)
 
 **v1**
 6. Provedores do Google implementando as mesmas três interfaces.

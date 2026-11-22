@@ -36,6 +36,11 @@ const EnvSchema = z.object({
   LLM_MAX_TOKENS: z.coerce.number().int().positive().default(1024),
   LLM_TIMEOUT_MS: z.coerce.number().int().positive().default(30_000),
 
+  FEEDBACK_MODEL: z.preprocess(emptyToUndefined, z.string().optional()),
+  FEEDBACK_REASONING_EFFORT: z.preprocess(emptyToUndefined, z.enum(['low', 'medium', 'high']).default('medium')),
+  FEEDBACK_MAX_TOKENS: z.coerce.number().int().positive().default(8192),
+  FEEDBACK_TIMEOUT_MS: z.coerce.number().int().positive().default(90_000),
+
   STT_ENGINE: z.string().default('groq'),
   STT_MODEL: z.string().default('whisper-large-v3-turbo'),
   STT_LANGUAGE: z.string().default('pt'),
@@ -82,6 +87,13 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env) {
       reasoningEffort: e.LLM_REASONING_EFFORT,
       maxTokens: e.LLM_MAX_TOKENS,
       timeoutMs: e.LLM_TIMEOUT_MS,
+    },
+    feedback: {
+      /** Vazio = o modelo do motor da entrevista. */
+      model: e.FEEDBACK_MODEL,
+      reasoningEffort: e.FEEDBACK_REASONING_EFFORT,
+      maxTokens: e.FEEDBACK_MAX_TOKENS,
+      timeoutMs: e.FEEDBACK_TIMEOUT_MS,
     },
     stt: {
       engine: e.STT_ENGINE,

@@ -30,7 +30,15 @@ export class FakeLlmEngine extends BaseLlmEngine {
     let text: string;
     if (typeof replies === 'function') text = replies(request);
     else if (replies?.length) text = replies[Math.min(this.index, replies.length - 1)]!;
-    else {
+    else if (request.jsonSchema) {
+      // Sem respostas programadas: um feedback válido, para LLM_ENGINE=fake funcionar até o fim.
+      text = JSON.stringify({
+        summary: 'Feedback de teste gerado pelo motor falso.',
+        strengths: ['Respondeu às perguntas.'],
+        improvements: ['Trazer exemplos com números.'],
+        suggestions: [],
+      });
+    } else {
       const turns = request.messages.filter((m) => m.role === 'user').length;
       text = `Pergunta de teste ${turns + 1}: pode me contar mais sobre isso?`;
     }

@@ -3,7 +3,7 @@
 Portal pessoal para treinar entrevistas de emprego com um entrevistador de IA, em português do Brasil.
 Plano, decisões e etapas: [`docs/PLANO.md`](docs/PLANO.md). Telas de referência: [`docs/design/`](docs/design/).
 
-> **Etapa atual: 4** — conta em Configurações (nome, e-mail, senha, voz preferida), apagar entrevistas no histórico; e, desde a etapa 3, entrevista por voz de ponta a ponta: você fala (transcrição no Groq), o entrevistador responde (modelo no Groq) e **fala** (Kokoro local, em CPU). Também por texto.
+> **v0 completa (etapas 1–5)** — entrevista por voz de ponta a ponta e **feedback final** ao encerrar;  conta em Configurações (nome, e-mail, senha, voz preferida), apagar entrevistas no histórico; e, desde a etapa 3, entrevista por voz de ponta a ponta: você fala (transcrição no Groq), o entrevistador responde (modelo no Groq) e **fala** (Kokoro local, em CPU). Também por texto.
 
 ## Requisitos
 
@@ -73,6 +73,8 @@ Todas estão comentadas em [`.env.example`](.env.example). As principais:
 | `LLM_MODEL` | `openai/gpt-oss-20b` | Nome do modelo no fornecedor |
 | `LLM_REASONING_EFFORT` | `low` | Só para modelos com raciocínio; vazio nos demais |
 | `LLM_MAX_TOKENS` | `1024` | Limite de tokens por resposta |
+| `FEEDBACK_MODEL` | vazio (= `LLM_MODEL`) | Modelo só do feedback, do mesmo fornecedor do `LLM_ENGINE`. Recomendado: `openai/gpt-oss-120b` |
+| `FEEDBACK_REASONING_EFFORT` | `medium` | Raciocínio do modelo no feedback |
 | `STT_ENGINE` | `groq` | Motor de transcrição, escolhido na `EngineFactory` (`groq`, `fake`) |
 | `STT_MODEL` | `whisper-large-v3-turbo` | Modelo de transcrição no fornecedor |
 | `STT_LANGUAGE` | `pt` | Idioma falado (ISO-639-1) |
@@ -95,6 +97,13 @@ Para testar sem chave de API: `LLM_ENGINE=fake` e `STT_ENGINE=fake`.
 - Gravação em silêncio (microfone mudo ou errado) é barrada antes de enviar: aparece "Não ouvi nada".
 - A voz do entrevistador toca sozinha depois de cada resposta, na voz padrão (`TTS_VOICE`). **Clicar em Falar interrompe** e começa a gravar.
 - Em cada fala, **Ouvir: Dora · Alex · Santa** toca a mesma frase em cada voz, para comparar (o ponto marca a padrão). A comparação não altera o tempo de voz registrado.
+
+## Encerrar e feedback
+
+- **Encerrar e ver feedback** (topo do chat) gera a avaliação a partir da transcrição completa, com saída estruturada (JSON Schema estrito) no `FEEDBACK_MODEL`. Medido: ~1,5–2 s com o `gpt-oss-120b`.
+- O feedback traz resumo, pontos fortes, pontos a melhorar, "Como responder melhor" (as 2–3 respostas mais fracas, com a pergunta, um trecho da resposta e uma sugestão) e a **tabela de tempos por etapa** (média e pior caso), para comparar provedores.
+- Nas sugestões, dados que você não deu aparecem como marcadores (`[X ms]`), para você preencher com a sua realidade.
+- Encerrar não tem volta: a entrevista fica só para leitura. Se o modelo falhar, nada muda e dá para tentar de novo.
 
 ## Configurações
 

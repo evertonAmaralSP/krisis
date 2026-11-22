@@ -5,6 +5,7 @@
 import { randomUUID } from 'node:crypto';
 import type { Kysely, Selectable } from 'kysely';
 import type {
+  Feedback,
   InputMode,
   Interview,
   InterviewKind,
@@ -14,8 +15,9 @@ import type {
   MessageAuthor,
   User,
 } from '../../../domain/types.ts';
-import { notFound } from '../../../domain/errors.ts';
+import { conflict, notFound } from '../../../domain/errors.ts';
 import type {
+  FeedbackRepository,
   InterviewRepository,
   MessageRepository,
   NewMessage,
@@ -23,7 +25,7 @@ import type {
   SessionRepository,
   UserRepository,
 } from '../../../ports/repositories.ts';
-import type { Database, InterviewsTable, MessagesTable, UsersTable } from './schema.ts';
+import type { Database, FeedbackTable, InterviewsTable, MessagesTable, UsersTable } from './schema.ts';
 
 const iso = (d: Date) => d.toISOString();
 
@@ -262,6 +264,9 @@ class SqlMessageRepository implements MessageRepository {
     if (messages.length === 0) return [];
     return this.db.transaction().execute(async (trx) => {
       const interviewId = messages[0]!.interviewId;
+      // Um turno que começou antes de encerrar não grava depois do feedback.
+      const interview = await trx.selectFrom('interviews').select('status').where('id', '=', interviewId).executeTakeFirst();
+      if (interview && interview.status !== 'active') throw conflict('Esta entrevista já foi encerrada.');
       const last = await trx
         .selectFrom('messages')
         .select((eb) => eb.fn.max('seq').as('seq'))
@@ -292,11 +297,59 @@ class SqlMessageRepository implements MessageRepository {
   }
 }
 
+const toFeedback = (r: Selectable<FeedbackTable>): Feedback => ({
+  interviewId: r.interview_id,
+  summary: r.summary,
+  strengths: JSON.parse(r.strengths) as string[],
+  improvements: JSON.parse(r.improvements) as string[],
+  suggestions: JSON.parse(r.suggestions) as Feedback['suggestions'],
+  model: r.model,
+  llmMs: r.llm_ms,
+  createdAt: new Date(r.created_at),
+});
+
+class SqlFeedbackRepository implements FeedbackRepository {
+  constructor(private readonly db: Kysely<Database>) {}
+
+  async get(interviewId: string) {
+    const r = await this.db.selectFrom('feedback').selectAll().where('interview_id', '=', interviewId).executeTakeFirst();
+    return r ? toFeedback(r) : null;
+  }
+
+  async saveAndFinish(f: Feedback) {
+    return this.db.transaction().execute(async (trx) => {
+      // Só encerra quem ainda está aberta: dois pedidos simultâneos não gravam dois feedbacks.
+      const updated = await trx
+        .updateTable('interviews')
+        .set({ status: 'finished', finished_at: iso(f.createdAt) })
+        .where('id', '=', f.interviewId)
+        .where('status', '=', 'active')
+        .executeTakeFirst();
+      if (Number(updated.numUpdatedRows) === 0) return false;
+      await trx
+        .insertInto('feedback')
+        .values({
+          interview_id: f.interviewId,
+          summary: f.summary,
+          strengths: JSON.stringify(f.strengths),
+          improvements: JSON.stringify(f.improvements),
+          suggestions: JSON.stringify(f.suggestions),
+          model: f.model,
+          llm_ms: f.llmMs,
+          created_at: iso(f.createdAt),
+        })
+        .execute();
+      return true;
+    });
+  }
+}
+
 export function createSqlRepositories(db: Kysely<Database>): Repositories {
   return {
     users: new SqlUserRepository(db),
     sessions: new SqlSessionRepository(db),
     interviews: new SqlInterviewRepository(db),
     messages: new SqlMessageRepository(db),
+    feedback: new SqlFeedbackRepository(db),
   };
 }

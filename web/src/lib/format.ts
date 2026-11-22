@@ -47,3 +47,21 @@ export function timingLine(m: v1.Message): string {
   }
   return parts.join(' · ');
 }
+
+export const STAGE_LABEL: Record<v1.TimingStage, string> = {
+  stt: 'Transcrição',
+  llm: 'Modelo de linguagem',
+  tts: 'Voz (início)',
+  text: 'Até o texto aparecer',
+};
+
+export function formatLongDate(iso: string): string {
+  return new Date(iso).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' }).replace('.', '');
+}
+
+/** Duração entre duas datas ISO: "18 min" ou "1 h 05 min". */
+export function formatSpan(fromIso: string, toIso: string | null): string | null {
+  if (!toIso) return null;
+  const min = Math.max(1, Math.round((new Date(toIso).getTime() - new Date(fromIso).getTime()) / 60_000));
+  return min < 60 ? `${min} min` : `${Math.floor(min / 60)} h ${String(min % 60).padStart(2, '0')} min`;
+}

@@ -36,6 +36,7 @@ export async function bootstrap(config: AppConfig, logger: Logger): Promise<{ da
     stt,
     tts,
     voices: { default: config.tts.voice, available: config.tts.voices },
+    feedback: config.feedback,
     hasher: new Argon2PasswordHasher(),
     sessionTtlDays: config.session.ttlDays,
   });

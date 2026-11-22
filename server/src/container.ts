@@ -8,6 +8,7 @@ import { InterviewService } from './application/InterviewService.ts';
 import type { LlmResolver, SttResolver, TtsResolver } from './application/LlmResolver.ts';
 import { SpeechService } from './application/SpeechService.ts';
 import { AccountService } from './application/AccountService.ts';
+import { FeedbackService, type FeedbackOptions } from './application/FeedbackService.ts';
 import { TranscriptionService } from './application/TranscriptionService.ts';
 import type { Repositories } from './ports/repositories.ts';
 import type { PasswordHasher } from './ports/security.ts';
@@ -19,6 +20,7 @@ export interface Services {
   transcription: TranscriptionService;
   speech: SpeechService;
   account: AccountService;
+  feedback: FeedbackService;
 }
 
 export function createServices(deps: {
@@ -27,6 +29,7 @@ export function createServices(deps: {
   stt: SttResolver;
   tts: TtsResolver;
   voices?: { default: string; available: string[] };
+  feedback?: FeedbackOptions;
   hasher: PasswordHasher;
   sessionTtlDays: number;
 }): Services {
@@ -39,5 +42,6 @@ export function createServices(deps: {
     transcription: new TranscriptionService(deps.repos, deps.stt),
     speech,
     account: new AccountService(deps.repos, deps.hasher, () => speech.voiceIds()),
+    feedback: new FeedbackService(deps.repos, deps.llm, deps.feedback ?? { maxTokens: 4096 }),
   };
 }
