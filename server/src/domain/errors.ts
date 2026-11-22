@@ -8,6 +8,7 @@ export type ErrorCode =
   | 'PAYLOAD_TOO_LARGE'
   | 'UNSUPPORTED_MEDIA'
   | 'NO_SPEECH'
+  | 'TTS_DISABLED'
   | 'ENGINE_FAILURE'
   | 'INTERNAL';
 

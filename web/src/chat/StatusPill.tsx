@@ -7,7 +7,7 @@ const LABEL: Record<TurnState, string> = {
   gravando: 'Gravando',
   transcrevendo: 'Transcrevendo sua fala…',
   pensando: 'O entrevistador está pensando…',
-  falando: 'Entrevistador falando',
+  falando: 'Entrevistador falando. Clique em Falar para responder.',
   erro: 'Veja o aviso acima.',
 };
 

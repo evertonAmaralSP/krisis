@@ -3,6 +3,7 @@
  * e traduzem o resultado. Toda a lógica fica em application/.
  */
 import { v1 } from '@krisis/contracts';
+import type { FastifyReply } from 'fastify';
 import type { FastifyPluginAsyncZod } from 'fastify-type-provider-zod';
 import { z } from 'zod';
 import type { Services } from '../../container.ts';
@@ -172,6 +173,52 @@ export const v1Routes: FastifyPluginAsyncZod<V1Options> = async (app, { services
           audio,
           mimeType: file.mimetype,
         });
+      },
+    );
+
+    s.get(
+      '/speech/voices',
+      {
+        schema: {
+          tags: ['interviews'],
+          summary: 'Vozes disponíveis para o entrevistador',
+          description: 'A voz padrão (TTS_VOICE) e as que podem ser comparadas com `?voice=` em GET /messages/{id}/speech.',
+          security: [{ cookieAuth: [] }],
+          response: { 200: v1.VoiceList, ...errors(401) },
+        },
+      },
+      async () => services.speech.listVoices(),
+    );
+
+    s.get(
+      '/messages/:id/speech',
+      {
+        schema: {
+          tags: ['interviews'],
+          summary: 'Voz de uma frase da fala do entrevistador',
+          description:
+            'Devolve o áudio da frase `part` (0, 1, 2…). O cabeçalho `x-speech-parts` diz quantas frases há; toque a parte N enquanto pede a N+1. `x-tts-ms` traz o tempo de síntese. Responde 404 com código TTS_DISABLED quando a voz está desligada.',
+          security: [{ cookieAuth: [] }],
+          params: v1.IdParams,
+          querystring: v1.SpeechQuery,
+          response: errors(400, 401, 404, 502),
+        },
+      },
+      async (request, reply) => {
+        const out = await services.speech.speak(
+          currentUser(request).id,
+          request.params.id,
+          request.query.part,
+          request.query.voice,
+        );
+        // Corpo binário: fora do serializador JSON tipado pelo contrato.
+        return (reply as FastifyReply)
+          .header('content-type', out.mimeType)
+          .header(v1.SPEECH_PARTS_HEADER, String(out.parts))
+          .header(v1.SPEECH_MS_HEADER, String(out.ms))
+          .header('cache-control', 'private, max-age=600') // curto: o áudio muda se TTS_VOICE/TTS_SPEED mudarem
+          .header('access-control-expose-headers', `${v1.SPEECH_PARTS_HEADER}, ${v1.SPEECH_MS_HEADER}`)
+          .send(out.audio);
       },
     );
 

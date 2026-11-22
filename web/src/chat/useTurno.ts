@@ -9,7 +9,8 @@ import { MIN_RECORDING_SECONDS, RecorderError, SILENCE_PEAK, useRecorder, type R
  * Estados do turno:
  *   texto: pronto → pensando → pronto
  *   voz:   pronto → gravando → transcrevendo → pensando → pronto
- * "falando" entra na etapa 3. Qualquer passo pode ir para "erro".
+ * Depois da resposta, a voz toca (estado "falando", controlado pelo useSpeech).
+ * Qualquer passo pode ir para "erro".
  */
 export type TurnState = 'pronto' | 'gravando' | 'transcrevendo' | 'pensando' | 'falando' | 'erro';
 
@@ -27,12 +28,17 @@ interface Failure {
   retry: (() => void) | null;
 }
 
-export function useTurno(interviewId: string) {
+export function useTurno(interviewId: string, options: { onReply?: (interviewerMessageId: string) => void } = {}) {
   const qc = useQueryClient();
   const [state, setState] = useState<TurnState>('pronto');
   const [pending, setPending] = useState<PendingSpeech | null>(null);
   const [failure, setFailure] = useState<Failure | null>(null);
   const finishRef = useRef<() => void>(() => {});
+  const onReplyRef = useRef(options.onReply);
+  onReplyRef.current = options.onReply;
+  // Entrevista aberta agora: uma resposta que chega depois de trocar de entrevista não toca.
+  const currentIdRef = useRef(interviewId);
+  currentIdRef.current = interviewId;
   const recorder = useRecorder(() => finishRef.current());
 
   const fail = (message: string, retry: Failure['retry']) => {
@@ -55,6 +61,7 @@ export function useTurno(interviewId: string) {
         appendTurn(qc, interviewId, turn);
         setPending(null);
         setState('pronto');
+        if (currentIdRef.current === interviewId) onReplyRef.current?.(turn.interviewerMessage.id);
       } catch (err) {
         fail((err as Error).message, () => void send(speech));
       }

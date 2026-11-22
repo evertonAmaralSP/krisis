@@ -213,6 +213,29 @@ class SqlInterviewRepository implements InterviewRepository {
 class SqlMessageRepository implements MessageRepository {
   constructor(private readonly db: Kysely<Database>) {}
 
+  async findForUser(messageId: string, userId: string) {
+    const row = await this.db
+      .selectFrom('messages')
+      .innerJoin('interviews', 'interviews.id', 'messages.interview_id')
+      .selectAll('messages')
+      .select('interviews.user_id as owner_id')
+      .where('messages.id', '=', messageId)
+      .where('interviews.user_id', '=', userId)
+      .executeTakeFirst();
+    if (!row) return null;
+    const interview = await this.db
+      .selectFrom('interviews')
+      .selectAll()
+      .where('id', '=', row.interview_id)
+      .executeTakeFirstOrThrow();
+    const { owner_id: _owner, ...message } = row;
+    return { message: toMessage(message), interview: toInterview(interview) };
+  }
+
+  async setTtsMs(messageId: string, ms: number) {
+    await this.db.updateTable('messages').set({ tts_ms: ms }).where('id', '=', messageId).execute();
+  }
+
   async listByInterview(interviewId: string) {
     const rows = await this.db
       .selectFrom('messages')

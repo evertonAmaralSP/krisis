@@ -2,7 +2,7 @@
  * Cliente da API v1. Os tipos vêm do pacote de contratos: se o contrato muda,
  * o frontend deixa de compilar onde for afetado.
  */
-import type { v1 } from '@krisis/contracts';
+import { v1 } from '@krisis/contracts';
 
 export class ApiError extends Error {
   constructor(
@@ -38,7 +38,37 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
   return data as T;
 }
 
+export interface SpeechChunk {
+  blob: Blob;
+  parts: number;
+  ms: number;
+}
+
+/** Áudio binário: não passa pelo request() de JSON. */
+async function fetchSpeech(messageId: string, part: number, voice?: string): Promise<SpeechChunk> {
+  let res: Response;
+  try {
+    const voiceParam = voice ? `&voice=${encodeURIComponent(voice)}` : '';
+    res = await fetch(`${BASE}/messages/${encodeURIComponent(messageId)}/speech?part=${part}${voiceParam}`, {
+      credentials: 'same-origin',
+    });
+  } catch {
+    throw new ApiError(0, 'NETWORK', 'Não foi possível falar com o servidor.');
+  }
+  if (!res.ok) {
+    const err = ((await res.json().catch(() => null)) as v1.ErrorBody | null)?.error;
+    throw new ApiError(res.status, err?.code ?? 'INTERNAL', err?.message ?? `Erro ${res.status}.`);
+  }
+  return {
+    blob: await res.blob(),
+    parts: Number(res.headers.get(v1.SPEECH_PARTS_HEADER) ?? 1),
+    ms: Number(res.headers.get(v1.SPEECH_MS_HEADER) ?? 0),
+  };
+}
+
 export const api = {
+  speech: fetchSpeech,
+  voices: () => request<v1.VoiceList>('GET', '/speech/voices'),
   login: (body: v1.LoginBody) => request<v1.MeResponse>('POST', '/auth/login', body),
   logout: () => request<void>('POST', '/auth/logout'),
   me: () => request<v1.MeResponse>('GET', '/auth/me'),

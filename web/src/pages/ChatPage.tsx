@@ -1,18 +1,49 @@
 import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 'react';
-import { Link, useParams } from 'react-router';
+import { useQueryClient } from '@tanstack/react-query';
+import type { v1 } from '@krisis/contracts';
+import { Link, useLocation, useNavigate, useParams } from 'react-router';
 import { ApiError } from '../api/client.ts';
-import { useInterview } from '../api/queries.ts';
+import { keys, useInterview, useVoices } from '../api/queries.ts';
 import logo from '../assets/krisis-logo-128.png';
-import { IconMic, IconSend, IconStop } from '../components/icons.tsx';
+import { IconMic, IconPlay, IconSend, IconStop } from '../components/icons.tsx';
 import { StatusPill } from '../chat/StatusPill.tsx';
-import { useTurno } from '../chat/useTurno.ts';
+import { useSpeech } from '../chat/useSpeech.ts';
+import { useTurno, type TurnState } from '../chat/useTurno.ts';
 import { formatDuration, KIND_LABEL, LEVEL_LABEL, timingLine } from '../lib/format.ts';
 import styles from '../chat/Chat.module.css';
 
 export function ChatPage() {
   const { id = '' } = useParams();
   const interview = useInterview(id);
-  const turno = useTurno(id);
+  const qc = useQueryClient();
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // Tempo da voz chega no cabeçalho da primeira frase: atualiza a mensagem na tela.
+  const speech = useSpeech((messageId, ms) =>
+    qc.setQueryData<v1.Interview>(keys.interview(id), (old) =>
+      old
+        ? {
+            ...old,
+            messages: old.messages.map((m) => (m.id === messageId ? { ...m, timings: { ...m.timings, ttsMs: ms } } : m)),
+          }
+        : old,
+    ),
+  );
+  const voices = useVoices();
+  const turno = useTurno(id, { onReply: (messageId) => void speech.play(messageId) });
+
+  // Primeira pergunta de uma entrevista recém-criada: fala sozinha uma vez.
+  const autoplay = (location.state as { autoplay?: string } | null)?.autoplay;
+  useEffect(() => {
+    if (!autoplay) return;
+    void speech.play(autoplay);
+    navigate(location.pathname, { replace: true, state: null });
+  }, [autoplay]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Trocar de entrevista para a voz.
+  const { stop: stopSpeech } = speech;
+  useEffect(() => stopSpeech, [id, stopSpeech]);
   const [draft, setDraft] = useState('');
   const endRef = useRef<HTMLDivElement>(null);
 
@@ -55,12 +86,17 @@ export function ChatPage() {
   const finished = data.status === 'finished';
   const busy = state === 'transcrevendo' || state === 'pensando';
   const recording = state === 'gravando';
+  // Quem decide se há voz é o servidor (404 TTS_DISABLED desliga os controles).
+  const voiceOn = !speech.disabled;
+  // "falando" é a voz tocando com o turno livre: dá para interromper falando ou digitando.
+  const shownState: TurnState = state === 'pronto' && speech.playingId ? 'falando' : state;
 
   const submit = (e?: FormEvent) => {
     e?.preventDefault();
     const text = draft.trim();
     if (!text || busy || recording || finished) return;
     if (state === 'erro') turno.discard();
+    speech.stop();
     turno.sendText(text);
     setDraft('');
   };
@@ -74,7 +110,10 @@ export function ChatPage() {
 
   const onMic = () => {
     if (recording) void turno.finishRecording();
-    else void turno.startRecording();
+    else {
+      speech.stop(); // interromper o entrevistador para responder
+      void turno.startRecording();
+    }
   };
 
   const pending = turno.pending;
@@ -90,6 +129,7 @@ export function ChatPage() {
             <span className={styles.chip}>{data.company}</span>
             <span className={styles.chipOutline}>
               {data.engines.stt && `Transcrição: ${data.engines.stt} · `}Modelo: {data.engines.llm}
+              {data.engines.tts && ` · Voz: ${data.engines.tts}`}
             </span>
           </div>
         </div>
@@ -106,7 +146,38 @@ export function ChatPage() {
                 <div className={styles.stack}>
                   <span className={styles.author}>Entrevistador</span>
                   <div className={styles.bubble}>{m.content}</div>
-                  <span className={styles.meta}>{timingLine(m)}</span>
+                  <div className={styles.metaRow}>
+                    {voiceOn && (
+                      <span className={styles.voiceGroup} role="group" aria-label="Ouvir esta fala com a voz">
+                        <span className={styles.voiceGroupLabel}>Ouvir:</span>
+                        {(voices.data?.voices ?? []).map((v) => {
+                          const isDefault = v.id === voices.data?.default;
+                          // Reprodução automática (sem voz pedida) acende o botão da voz padrão.
+                          const active =
+                            speech.playingId === m.id && (speech.playingVoice ?? voices.data?.default) === v.id;
+                          const name = v.label.split(' (')[0];
+                          return active ? (
+                            <button key={v.id} type="button" className={styles.audioButtonActive} onClick={speech.stop}>
+                              <IconStop size={12} /> {name}
+                            </button>
+                          ) : (
+                            <button
+                              key={v.id}
+                              type="button"
+                              className={styles.audioButton}
+                              title={`${v.label}${isDefault ? ' · voz padrão' : ''}`}
+                              aria-label={`Ouvir com a voz ${v.label}${isDefault ? ', padrão' : ''}`}
+                              onClick={() => void speech.play(m.id, isDefault ? undefined : v.id)}
+                            >
+                              <IconPlay size={12} /> {name}
+                              {isDefault && <span className={styles.defaultDot} aria-hidden="true" />}
+                            </button>
+                          );
+                        })}
+                      </span>
+                    )}
+                    <span className={styles.meta}>{timingLine(m)}</span>
+                  </div>
                 </div>
               </article>
             ) : (
@@ -162,8 +233,13 @@ export function ChatPage() {
 
       <footer className={styles.composer}>
         <div className={styles.composerInner}>
+          {speech.error && (
+            <p className={styles.speechError} role="status">
+              {speech.error}
+            </p>
+          )}
           <div className={styles.statusRow}>
-            <StatusPill state={state} seconds={turno.recordingSeconds} />
+            <StatusPill state={shownState} seconds={turno.recordingSeconds} />
           </div>
           <div className={styles.inputRow}>
             <button
